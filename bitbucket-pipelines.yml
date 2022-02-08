@@ -19,6 +19,6 @@ pipelines:
           caches:
             - gradle
           script:
-            - gradle packageMsi
+            - bash ./gradlew packageMsi
           artifacts:
             - /build/compose/binaries/main/msi/**
