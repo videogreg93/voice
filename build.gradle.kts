@@ -25,6 +25,16 @@ dependencies {
         version = "1.19.0",
         ext = "jar"
     )
+    implementation(
+        group = "org.apache.poi",
+        name = "poi",
+        version = "5.2.0"
+    )
+    implementation(
+        group = "org.apache.poi",
+        name = "poi-ooxml",
+        version = "5.2.0"
+    )
 }
 
 tasks.withType<KotlinCompile>() {

@@ -1,9 +1,6 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +19,11 @@ import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
 import models.VoiceField
+import org.apache.poi.xwpf.usermodel.XWPFDocument
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.Semaphore
 
 
@@ -67,6 +69,15 @@ fun App() {
                         }
                     }
                     recordButton(recordButtonText, onClick)
+                    Spacer(Modifier.width(100.dp))
+                    exportButton {
+                        generateWordDocument(
+                            allTexts.mapIndexed { index, s ->
+                                index.toString() to s
+                            }
+                        )
+                    }
+
                 }
             }
         ) {
@@ -105,6 +116,13 @@ fun recordButton(text: String, onTap: () -> Unit) {
             colorFilter = ColorFilter.tint(Color.White),
         )
         Text(text)
+    }
+}
+
+@Composable
+fun exportButton(onTap: () -> Unit) {
+    Button(onClick = onTap) {
+        Text("Export")
     }
 }
 
@@ -174,4 +192,38 @@ private fun setupSpeech(): SpeechRecognizer {
     }
 //    stopTranslationWithFileSemaphore.acquire()
     return recognizer
+}
+
+fun writeWordDocument(texts: List<String> = emptyList()) {
+    if (!Paths.get("./generated").toFile().exists()) Files.createDirectories(Paths.get("./generated"))
+    val document = XWPFDocument()
+    val out = FileOutputStream("generated/temp.docx")
+    texts.forEach {
+        val paragraph = document.createParagraph()
+        val run = paragraph.createRun()
+        run.setText(it)
+    }
+    document.write(out)
+    out.close()
+}
+
+/**
+ * @param inputs id : value
+ */
+fun generateWordDocument(inputs: List<Pair<String, String>>) {
+    if (!Paths.get("./generated").toFile().exists()) Files.createDirectories(Paths.get("./generated"))
+    val fis = FileInputStream("generated/template.docx")
+    val document = XWPFDocument(fis)
+    val texts = document.paragraphs.map { paragraph ->
+        var text = paragraph.text
+        inputs.forEach { input ->
+            text = text.replace("{${input.first}}", input.second)
+        }
+        text
+    }
+    fis.close()
+    texts.forEach {
+        println(it)
+    }
+    writeWordDocument(texts)
 }
