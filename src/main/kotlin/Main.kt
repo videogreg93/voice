@@ -8,6 +8,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -20,7 +22,6 @@ import com.microsoft.cognitiveservices.speech.ResultReason
 import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
-import com.microsoft.cognitiveservices.speech.util.EventHandlerImpl
 import models.VoiceField
 import java.util.concurrent.Semaphore
 
@@ -35,6 +36,13 @@ fun App() {
         VoiceField("Autre", VoiceField.Size.LARGE),
     )
 
+    var allTexts = mutableStateListOf("","","")
+
+    var selectedInputIndex: Int by remember { mutableStateOf(0) }
+    recognizer.recognizing.addEventListener { s, e ->
+        allTexts[selectedInputIndex] = e.result.text
+    }
+
     MaterialTheme {
         Scaffold(
             topBar = {
@@ -43,15 +51,15 @@ fun App() {
                     var recordButtonText by remember { mutableStateOf("Record") }
                     var isRecording by remember { mutableStateOf(false) }
                     val onClick = {
-                    isRecording = !isRecording
-                    recordButtonText = if (isRecording) {
-                        recognizer.startContinuousRecognitionAsync()
-                        "Recording..."
-                    } else {
-                        recognizer.stopContinuousRecognitionAsync()
-                        "Record"
+                        isRecording = !isRecording
+                        recordButtonText = if (isRecording) {
+                            recognizer.startContinuousRecognitionAsync()
+                            "Recording..."
+                        } else {
+                            recognizer.stopContinuousRecognitionAsync()
+                            "Record"
+                        }
                     }
-                }
                     recordButton(recordButtonText, onClick)
                 }
             }
@@ -60,9 +68,18 @@ fun App() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                inputs.map {
+                inputs.mapIndexed { index, voiceField ->
                     var input by remember { mutableStateOf("") }
-                    VoiceTextField(it, input) { input = it }
+                    VoiceTextField(
+                        voiceField, allTexts[index],
+                        onChange = { input = it },
+                        onFocusChange = {
+                            if (it.hasFocus) {
+                                selectedInputIndex = index
+                                println("Changing Focus")
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -82,7 +99,12 @@ fun recordButton(text: String, onTap: () -> Unit) {
 }
 
 @Composable
-fun VoiceTextField(voiceField: VoiceField, input: String, onChange: (String) -> Unit) {
+fun VoiceTextField(
+    voiceField: VoiceField,
+    input: String,
+    onChange: (String) -> Unit,
+    onFocusChange: (FocusState) -> Unit
+) {
     val height = when (voiceField.size) {
         VoiceField.Size.SMALL -> Dp.Unspecified
         VoiceField.Size.MEDIUM -> 100.dp
@@ -90,9 +112,13 @@ fun VoiceTextField(voiceField: VoiceField, input: String, onChange: (String) -> 
     }
     OutlinedTextField(
         value = input,
-        modifier = Modifier.fillMaxWidth(0.8f).padding(top = 16.dp).defaultMinSize(minHeight = height),
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .padding(top = 16.dp)
+            .defaultMinSize(minHeight = height)
+            .onFocusChanged(onFocusChange),
         onValueChange = onChange,
-        label = { Text(voiceField.label) }
+        label = { Text(voiceField.label) },
     )
 }
 
@@ -112,7 +138,7 @@ private fun setupSpeech(): SpeechRecognizer {
         "eastus",
     )
     speechConfig.enableDictation()
-    speechConfig.speechRecognitionLanguage = "fr-FR"
+    speechConfig.speechRecognitionLanguage = "fr-CA"
     val audioConfig = AudioConfig.fromDefaultMicrophoneInput()
     val recognizer = SpeechRecognizer(speechConfig, audioConfig)
     recognizer.recognizing.addEventListener { s, e ->
@@ -140,10 +166,10 @@ private fun setupSpeech(): SpeechRecognizer {
         System.out.println("\n    Session stopped event.");
         stopTranslationWithFileSemaphore.release();
     }
-    recognizer.sessionStarted.addEventListener { s,e ->
+    recognizer.sessionStarted.addEventListener { s, e ->
         println("Session started")
     }
-    recognizer.sessionStopped.addEventListener { s,e ->
+    recognizer.sessionStopped.addEventListener { s, e ->
         println("Session stopped")
     }
 //    stopTranslationWithFileSemaphore.acquire()
