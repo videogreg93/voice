@@ -1,0 +1,20 @@
+#  Template Java Gradle build
+
+#  This template allows you to test and build your Java project with Gradle.
+#  The workflow allows running tests, code checkstyle and security scans on the default branch.
+
+# Prerequisites: appropriate project structure should exist in the repository.
+
+image: gradle:6.6.0
+
+pipelines:
+  default:
+    - parallel:
+      - step:
+          name: Build
+          caches:
+            - gradle
+          script:
+            - gradle packageMsi
+          artifacts:
+            - /build/compose/binaries/main/msi/**
