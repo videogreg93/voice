@@ -4,14 +4,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,7 +39,7 @@ fun App() {
         VoiceField("Autre", VoiceField.Size.LARGE),
     )
 
-    var allTexts = mutableStateListOf("","","")
+    val allTexts = mutableStateListOf("","","")
 
     var selectedInputIndex: Int by remember { mutableStateOf(0) }
     recognizer.recognizing.addEventListener { s, e ->
@@ -69,14 +72,12 @@ fun App() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 inputs.mapIndexed { index, voiceField ->
-                    var input by remember { mutableStateOf("") }
                     VoiceTextField(
                         voiceField, allTexts[index],
-                        onChange = { input = it },
+                        onChange = { allTexts[index] = it },
                         onFocusChange = {
                             if (it.hasFocus) {
                                 selectedInputIndex = index
-                                println("Changing Focus")
                             }
                         }
                     )
