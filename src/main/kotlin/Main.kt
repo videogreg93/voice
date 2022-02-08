@@ -4,24 +4,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.microsoft.cognitiveservices.speech.CancellationReason
-import com.microsoft.cognitiveservices.speech.ResultReason
 import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
@@ -39,11 +35,21 @@ fun App() {
         VoiceField("Autre", VoiceField.Size.LARGE),
     )
 
-    val allTexts = mutableStateListOf("","","")
+    val allTexts = mutableStateListOf("", "", "")
+    // Used during recognition to append current session to previous text
+    var startingText = ""
 
     var selectedInputIndex: Int by remember { mutableStateOf(0) }
-    recognizer.recognizing.addEventListener { s, e ->
-        allTexts[selectedInputIndex] = e.result.text
+//    recognizer.speechStartDetected.addEventListener { s, e ->
+//        println("Speech start")
+//        startingText = allTexts[selectedInputIndex]
+//    }
+//    recognizer.speechEndDetected.addEventListener { _, _ ->
+//        println("Speech end")
+//        startingText = allTexts[selectedInputIndex]
+//    }
+    recognizer.recognized.addEventListener { s, e ->
+        allTexts[selectedInputIndex] += e.result.text
     }
 
     MaterialTheme {
@@ -78,6 +84,7 @@ fun App() {
                         onFocusChange = {
                             if (it.hasFocus) {
                                 selectedInputIndex = index
+                                startingText = allTexts[index]
                             }
                         }
                     )
@@ -142,16 +149,6 @@ private fun setupSpeech(): SpeechRecognizer {
     speechConfig.speechRecognitionLanguage = "fr-CA"
     val audioConfig = AudioConfig.fromDefaultMicrophoneInput()
     val recognizer = SpeechRecognizer(speechConfig, audioConfig)
-    recognizer.recognizing.addEventListener { s, e ->
-        println("RECOGNIZING: Text=" + e.result.text)
-    }
-    recognizer.recognized.addEventListener { s, e ->
-        if (e.result.reason == ResultReason.RecognizedSpeech) {
-            println("RECOGNIZED: Text=" + e.getResult().getText());
-        } else if (e.result.reason == ResultReason.NoMatch) {
-            println("NOMATCH: Speech could not be recognized.");
-        }
-    }
     recognizer.canceled.addEventListener { s, e ->
         System.out.println("CANCELED: Reason=" + e.getReason());
 
