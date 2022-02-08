@@ -5,11 +5,15 @@
 
 # Prerequisites: appropriate project structure should exist in the repository.
 
-image: gradle:6.6.0
+image: openjdk:15
 
 pipelines:
   default:
-    - parallel:
+    - step:
+        script:
+          - echo "Nothing to do here"
+  branches:
+    master:
       - step:
           name: Build
           caches:
