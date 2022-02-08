@@ -40,25 +40,22 @@ fun App() {
     var startingText = ""
 
     var selectedInputIndex: Int by remember { mutableStateOf(0) }
-//    recognizer.speechStartDetected.addEventListener { s, e ->
-//        println("Speech start")
-//        startingText = allTexts[selectedInputIndex]
-//    }
-//    recognizer.speechEndDetected.addEventListener { _, _ ->
-//        println("Speech end")
-//        startingText = allTexts[selectedInputIndex]
-//    }
+
+    recognizer.recognizing.addEventListener { _, e ->
+        allTexts[selectedInputIndex] = startingText + " " + e.result.text
+    }
     recognizer.recognized.addEventListener { s, e ->
-        allTexts[selectedInputIndex] += e.result.text
+        allTexts[selectedInputIndex] = startingText + " " + e.result.text
+        startingText = allTexts[selectedInputIndex]
     }
 
     MaterialTheme {
+        var isRecording by remember { mutableStateOf(false) }
         Scaffold(
             topBar = {
                 TopAppBar {
                     Text("Voice", modifier = Modifier.padding(start = 12.dp, end = 24.dp))
                     var recordButtonText by remember { mutableStateOf("Record") }
-                    var isRecording by remember { mutableStateOf(false) }
                     val onClick = {
                         isRecording = !isRecording
                         recordButtonText = if (isRecording) {
@@ -80,7 +77,12 @@ fun App() {
                 inputs.mapIndexed { index, voiceField ->
                     VoiceTextField(
                         voiceField, allTexts[index],
-                        onChange = { allTexts[index] = it },
+                        onChange = {
+                            allTexts[index] = it
+                            if (!isRecording) {
+                                startingText = it
+                            }
+                        },
                         onFocusChange = {
                             if (it.hasFocus) {
                                 selectedInputIndex = index
