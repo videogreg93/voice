@@ -21,4 +21,4 @@ pipelines:
           script:
             - bash ./gradlew packageMsi
           artifacts:
-            - /build/compose/binaries/main/msi/**
+            - /**/**.msi
