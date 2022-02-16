@@ -1,6 +1,7 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,25 +20,38 @@ import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
 import models.VoiceField
-import org.apache.poi.xwpf.usermodel.XWPFDocument
-import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.Semaphore
+import kotlin.io.path.absolutePathString
 
+val mainFolder by lazy { Paths.get(System.getenv("APPDATA"), "/Voice") }
+val generatedDocument by lazy { Paths.get(mainFolder.absolutePathString(), "/generated.docx") }
+val template by lazy { Paths.get(mainFolder.absolutePathString(), "/template.docx").toFile() }
 
+@ExperimentalMaterialApi
 @Composable
 @Preview
 fun App() {
-
     val inputs = listOf(
-        VoiceField("Numéro de patient", VoiceField.Size.SMALL),
-        VoiceField("Introduction", VoiceField.Size.MEDIUM),
-        VoiceField("Autre", VoiceField.Size.LARGE),
+        VoiceField("Date de l'Opération", VoiceField.Size.SMALL, "{id_date}"),
+        VoiceField("Nom du patient", VoiceField.Size.SMALL, "{id_nom_patient}"),
+        VoiceField("Numéro de dossier", VoiceField.Size.SMALL, "{id_number}"),
+        VoiceField("NAM", VoiceField.Size.SMALL, "{id_nam}"),
+        VoiceField("DDN", VoiceField.Size.SMALL, "{id_ddn}"),
+        VoiceField("Aĝe", VoiceField.Size.SMALL, "{id_age}"),
+        VoiceField("No Visite", VoiceField.Size.SMALL, "{id_visite}"),
+        VoiceField("Diagnostic Préopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_preoperatoire}"),
+        VoiceField("Diagnostic Postopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_postoperatoire}"),
+        VoiceField("Protocole Opératoire", VoiceField.Size.LARGE, "{id_protocole_operatoire}"),
+        VoiceField("Nom du médecin", VoiceField.Size.SMALL, "{id_nom_medecin}"),
+        VoiceField("Département", VoiceField.Size.SMALL, "{id_nom_departement}"),
     )
 
-    val allTexts = mutableStateListOf("", "", "")
+    val allTexts = mutableStateListOf(
+        *inputs.map { "" }.toTypedArray()
+    )
+    val stateVertical = rememberScrollState(0)
     // Used during recognition to append current session to previous text
     var startingText = ""
 
@@ -50,6 +64,8 @@ fun App() {
         allTexts[selectedInputIndex] = startingText + " " + e.result.text
         startingText = allTexts[selectedInputIndex]
     }
+
+    var openDialog by remember { mutableStateOf(false) }
 
     MaterialTheme {
         var isRecording by remember { mutableStateOf(false) }
@@ -71,18 +87,48 @@ fun App() {
                     recordButton(recordButtonText, onClick)
                     Spacer(Modifier.width(100.dp))
                     exportButton {
-                        generateWordDocument(
-                            allTexts.mapIndexed { index, s ->
-                                index.toString() to s
-                            }
+                        replaceIdsInDocument(
+                            inputs = allTexts.mapIndexed { index, s ->
+                                inputs[index].id to s
+                            },
+                            input = template,
+                            output = FileOutputStream(generatedDocument.toFile())
+                        )
+                        openDialog = true
+                    }
+                    if (openDialog) {
+                        AlertDialog(
+                            title = {
+                                Text("Success!")
+                            },
+                            text = {
+                                SelectionContainer {
+                                    Text("Successfully generated at ${generatedDocument.absolutePathString()}")
+                                }
+                            },
+                            buttons = {
+                                Button(
+                                    onClick = {
+                                        openDialog = false
+
+                                    }
+                                ) {
+                                    Text("Ok")
+                                }
+
+                            },
+                            onDismissRequest = {},
                         )
                     }
-
                 }
             }
         ) {
+            VerticalScrollbar(
+                modifier = Modifier.fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(stateVertical),
+            )
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().verticalScroll(stateVertical),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 inputs.mapIndexed { index, voiceField ->
@@ -153,6 +199,7 @@ fun VoiceTextField(
 private val stopTranslationWithFileSemaphore: Semaphore = Semaphore(0)
 lateinit var recognizer: SpeechRecognizer
 
+@ExperimentalMaterialApi
 fun main() = application {
     recognizer = setupSpeech()
     Window(onCloseRequest = ::exitApplication) {
@@ -192,38 +239,4 @@ private fun setupSpeech(): SpeechRecognizer {
     }
 //    stopTranslationWithFileSemaphore.acquire()
     return recognizer
-}
-
-fun writeWordDocument(texts: List<String> = emptyList()) {
-    if (!Paths.get("./generated").toFile().exists()) Files.createDirectories(Paths.get("./generated"))
-    val document = XWPFDocument()
-    val out = FileOutputStream("generated/temp.docx")
-    texts.forEach {
-        val paragraph = document.createParagraph()
-        val run = paragraph.createRun()
-        run.setText(it)
-    }
-    document.write(out)
-    out.close()
-}
-
-/**
- * @param inputs id : value
- */
-fun generateWordDocument(inputs: List<Pair<String, String>>) {
-    if (!Paths.get("./generated").toFile().exists()) Files.createDirectories(Paths.get("./generated"))
-    val fis = FileInputStream("generated/template.docx")
-    val document = XWPFDocument(fis)
-    val texts = document.paragraphs.map { paragraph ->
-        var text = paragraph.text
-        inputs.forEach { input ->
-            text = text.replace("{${input.first}}", input.second)
-        }
-        text
-    }
-    fis.close()
-    texts.forEach {
-        println(it)
-    }
-    writeWordDocument(texts)
 }

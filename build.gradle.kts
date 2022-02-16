@@ -15,6 +15,7 @@ repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://csspeechstorage.blob.core.windows.net/maven/")
+    maven("https://artifact.aspose.com/repo/")
 }
 
 dependencies {
