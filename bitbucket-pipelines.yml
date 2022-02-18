@@ -21,7 +21,7 @@ pipelines:
           script:
             - bash ./gradlew packageMsi
           artifacts:
-            - /build/compose/binaries/main/msi/**
+            - /**/*.msi
       - step:
           name: Upload to downloads section
           deployment: staging
