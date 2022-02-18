@@ -22,7 +22,7 @@ pipelines:
             - bash ./gradlew packageMsi
             - bash ls
           artifacts:
-            - build/compose/binaries/main/msi/*.msi
+            - build/compose/**
       - step:
           name: Upload to downloads section
           deployment: staging
