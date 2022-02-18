@@ -68,12 +68,18 @@ class MainScreen(val speechManager: SpeechManager) {
 
         var openDialog by remember { mutableStateOf(false) }
 
-        MaterialTheme {
+        MaterialTheme(
+            colors = MaterialTheme.colors.copy(
+                primary = Color.Blue,
+
+            )
+        ) {
             var isRecording by remember { mutableStateOf(false) }
             Scaffold(
                 topBar = {
                     TopAppBar {
-                        Text("Voice", modifier = Modifier.padding(start = 12.dp, end = 24.dp))
+                        Text("Voice", modifier = Modifier.padding(start = 12.dp, end = 24.dp),
+                        color = MaterialTheme.colors.onPrimary)
                         var recordButtonText by remember { mutableStateOf("Record") }
                         val onClick = {
                             isRecording = !isRecording
@@ -190,7 +196,7 @@ class MainScreen(val speechManager: SpeechManager) {
             Image(
                 painterResource("microphone.png"),
                 "",
-                colorFilter = ColorFilter.tint(Color.White),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onPrimary),
             )
             Text(text)
         }
