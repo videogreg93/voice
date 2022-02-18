@@ -28,3 +28,10 @@ pipelines:
             - pipe: jfrog/jfrog-setup-cli:1.0.0
             - source ./jfrog-setup-cli.sh
             - jfrog rt ping --url https://voicehera.jfrog.io/artifactory/
+      - step:
+          name: Deploy to production
+          deployment: production
+          script:
+            - pipe: jfrog/jfrog-setup-cli:1.0.0
+            - source ./jfrog-setup-cli.sh
+            - jfrog rt u file artifacts/
