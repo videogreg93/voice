@@ -30,7 +30,7 @@ pipelines:
               variables:
                 BITBUCKET_USERNAME: $BITBUCKET_USERNAME
                 BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
-                FILENAME: '**/argos*.jar'
+                FILENAME: '**/*.msi'
       - step:
           name: Test jfrog connection
           script:
