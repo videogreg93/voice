@@ -21,7 +21,9 @@ pipelines:
           script:
             - bash ./gradlew packageMsi
           artifacts:
-            - /**/*.msi
+            - build/compose/**
+            - build/**
+            - builds/**
       - step:
           name: Upload to downloads section
           deployment: staging
@@ -30,7 +32,7 @@ pipelines:
               variables:
                 BITBUCKET_USERNAME: $BITBUCKET_USERNAME
                 BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
-                FILENAME: '**/*.msi'
+                FILENAME: '**/voice*.msi'
       - step:
           name: Test jfrog connection
           script:
