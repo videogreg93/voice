@@ -21,9 +21,11 @@ import com.microsoft.cognitiveservices.speech.SpeechRecognizer
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
 import models.VoiceField
 import java.io.FileOutputStream
+import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.Semaphore
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.exists
 
 val mainFolder by lazy { Paths.get(System.getenv("APPDATA"), "/Voice") }
 val generatedDocument by lazy { Paths.get(mainFolder.absolutePathString(), "/generated.docx") }
@@ -202,6 +204,7 @@ lateinit var recognizer: SpeechRecognizer
 @ExperimentalMaterialApi
 fun main() = application {
     recognizer = setupSpeech()
+    if (!mainFolder.exists()) Files.createDirectories(mainFolder)
     Window(onCloseRequest = ::exitApplication) {
         App()
     }
