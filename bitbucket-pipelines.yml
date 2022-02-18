@@ -32,7 +32,7 @@ pipelines:
           name: Deployment to Production
           deployment: production
           script:
-            - pipe: JfrogDev/artifactory-generic-upload:0.3.2
+            - pipe: jfrog/artifactory-generic-upload:0.3.2
               variables:
                 ARTIFACTORY_URL: $ARTIFACTORY_URL
                 ARTIFACTORY_USER: $ARTIFACTORY_USER
