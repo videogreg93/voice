@@ -23,6 +23,15 @@ pipelines:
           artifacts:
             - /build/compose/binaries/main/msi/**
       - step:
+          name: Upload to downloads section
+          deployment: staging
+          script:
+            - pipe: atlassian/bitbucket-upload-file:0.3.1
+              variables:
+                BITBUCKET_USERNAME: $BITBUCKET_USERNAME
+                BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
+                FILENAME: '**/argos*.jar'
+      - step:
           name: Test jfrog connection
           script:
             - pipe: jfrog/jfrog-setup-cli:1.0.0
@@ -34,4 +43,4 @@ pipelines:
           script:
             - pipe: jfrog/jfrog-setup-cli:1.0.0
             - source ./jfrog-setup-cli.sh
-            - jfrog rt u artifacts/ file --url https://voicehera.jfrog.io
+            - jfrog rt u **/*.msi file --url https://voicehera.jfrog.io
