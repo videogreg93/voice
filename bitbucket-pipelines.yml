@@ -34,4 +34,4 @@ pipelines:
           script:
             - pipe: jfrog/jfrog-setup-cli:1.0.0
             - source ./jfrog-setup-cli.sh
-            - jfrog rt u C:\Users\grego\Documents\Projects\voice\build\compose\binaries\main\msi\voice-1.0.0.msi file --url https://voicehera.jfrog.io/artifactory/
+            - jfrog rt u artifacts/ file --url https://voicehera.jfrog.io/artifactory/
