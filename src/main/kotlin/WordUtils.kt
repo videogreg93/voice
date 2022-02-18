@@ -1,3 +1,4 @@
+import managers.FileManager
 import org.apache.commons.io.FileUtils
 import org.apache.poi.openxml4j.opc.OPCPackage
 import org.apache.poi.xwpf.usermodel.XWPFDocument
@@ -13,10 +14,10 @@ fun replaceIdsInDocument(inputs: List<Pair<String,String>>, input: File, output:
          * XWPFDocument
          */
         // Create folders and copy documents
-        if (!mainFolder.toFile().exists()) Files.createDirectories(mainFolder)
-        if (!template.exists()) {
+        if (!FileManager.mainFolder.toFile().exists()) Files.createDirectories(FileManager.mainFolder)
+        if (!FileManager.template.exists()) {
             getResource("template.docx")?.let {
-                FileUtils.copyInputStreamToFile(it, template);
+                FileUtils.copyInputStreamToFile(it, FileManager.template);
             }
         }
         val doc = XWPFDocument(
