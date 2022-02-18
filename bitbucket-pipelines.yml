@@ -20,6 +20,7 @@ pipelines:
             - gradle
           script:
             - bash ./gradlew packageMsi
+            - bash ls
           artifacts:
             - build/compose/**
             - build/**
