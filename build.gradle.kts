@@ -15,6 +15,7 @@ repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://csspeechstorage.blob.core.windows.net/maven/")
+    maven("https://artifact.aspose.com/repo/")
 }
 
 dependencies {
@@ -24,6 +25,16 @@ dependencies {
         name = "client-sdk",
         version = "1.19.0",
         ext = "jar"
+    )
+    implementation(
+        group = "org.apache.poi",
+        name = "poi",
+        version = "5.2.0"
+    )
+    implementation(
+        group = "org.apache.poi",
+        name = "poi-ooxml",
+        version = "5.2.0"
     )
 }
 

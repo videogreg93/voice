@@ -21,4 +21,17 @@ pipelines:
           script:
             - bash ./gradlew packageMsi
           artifacts:
-            - /**/**.msi
+            - /build/compose/binaries/main/msi/**
+      - step:
+          name: Deployment to Production
+          deployment: production
+          script:
+            - pipe: JfrogDev/artifactory-generic-upload:0.2.11
+              variables:
+                ARTIFACTORY_URL: $ARTIFACTORY_URL
+                ARTIFACTORY_USER: $ARTIFACTORY_USER
+                ARTIFACTORY_PASSWORD: $ARTIFACTORY_PASSWORD
+                FILE_SPEC: "false"
+                SOURCE_PATH: "/build/compose/binaries/main/msi/*.msi"
+                TARGET_PATH: "msi/"
+                BUILD_NAME: "msi-build"
