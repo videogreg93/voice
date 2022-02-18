@@ -23,10 +23,16 @@ pipelines:
           artifacts:
             - /build/compose/binaries/main/msi/**
       - step:
+          name: Test jfrog connection
+          script:
+            - pipe: jfrog/jfrog-setup-cli:1.0.0
+            - source ./jfrog-setup-cli.sh
+            - jfrog rt ping
+      - step:
           name: Deployment to Production
           deployment: production
           script:
-            - pipe: JfrogDev/artifactory-generic-upload:0.2.11
+            - pipe: JfrogDev/artifactory-generic-upload:0.3.2
               variables:
                 ARTIFACTORY_URL: $ARTIFACTORY_URL
                 ARTIFACTORY_USER: $ARTIFACTORY_USER
