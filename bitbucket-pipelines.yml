@@ -23,6 +23,8 @@ pipelines:
             - bash ls
           artifacts:
             - build/compose/**
+            - build/**
+            - builds/**
       - step:
           name: Upload to downloads section
           deployment: staging
