@@ -39,7 +39,7 @@ class MainScreen(val speechManager: SpeechManager) {
             VoiceField("Numéro de dossier", VoiceField.Size.SMALL, "{id_number}"),
             VoiceField("NAM", VoiceField.Size.SMALL, "{id_nam}"),
             VoiceField("DDN", VoiceField.Size.SMALL, "{id_ddn}"),
-            VoiceField("Aĝe", VoiceField.Size.SMALL, "{id_age}"),
+            VoiceField("Âge", VoiceField.Size.SMALL, "{id_age}"),
             VoiceField("No Visite", VoiceField.Size.SMALL, "{id_visite}"),
             VoiceField("Diagnostic Préopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_preoperatoire}"),
             VoiceField("Diagnostic Postopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_postoperatoire}"),
@@ -92,7 +92,7 @@ class MainScreen(val speechManager: SpeechManager) {
                             }
                         }
                         recordButton(recordButtonText, onClick)
-                        Spacer(Modifier.width(100.dp))
+                        Spacer(Modifier.width(32.dp))
                         exportButton {
                             val fileName = inputs.indexOfFirst { it.isFileName }.takeUnless { it == -1 }?.let {
                                 allTexts[it] + ".docx"
@@ -172,8 +172,8 @@ class MainScreen(val speechManager: SpeechManager) {
                         VoiceTextField(
                             voiceField, allTexts[index],
                             onChange = {
-                                allTexts[index] = it
                                 if (!isRecording) {
+                                    allTexts[index] = it
                                     startingText = it
                                 }
                             },
@@ -198,6 +198,7 @@ class MainScreen(val speechManager: SpeechManager) {
                 "",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onPrimary),
             )
+            Spacer(Modifier.padding(4.dp))
             Text(text)
         }
     }
@@ -205,6 +206,12 @@ class MainScreen(val speechManager: SpeechManager) {
     @Composable
     fun exportButton(onTap: () -> Unit) {
         Button(onClick = onTap) {
+            Image(
+                painterResource("export.png"),
+                "",
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onPrimary),
+            )
+            Spacer(Modifier.padding(4.dp))
             Text("Export")
         }
     }
