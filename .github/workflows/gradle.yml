@@ -9,6 +9,8 @@ name: Build
 
 on:
   push:
+    tags:
+      - "v*"
     branches: [ master ]
     
 jobs:
@@ -32,3 +34,18 @@ jobs:
       with:
         name: release
         path: build/compose/binaries/main/msi/*.msi
+    - name: Setup latest release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: false
+        files: |
+          *.msi
+    - name: Setup versioned release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        files: |
+          *.msi
