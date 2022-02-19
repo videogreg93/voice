@@ -30,9 +30,5 @@ jobs:
     - run: gradle packageMsi
     - uses: actions/upload-artifact@v2
       with:
-        name: Package
-        path: build/compose
-    - uses: actions/upload-artifact@v2
-      with:
         name: release
-        path: build/compose/**/.msi
+        path: build/compose/binaries/main/msi/*.msi
