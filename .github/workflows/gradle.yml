@@ -48,4 +48,4 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
         files: |
-          *.msi
+          build/compose/binaries/main/msi/*.msi
