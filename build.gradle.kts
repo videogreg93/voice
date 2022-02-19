@@ -46,10 +46,10 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
+            targetFormats(TargetFormat.Msi)
             includeAllModules = true
             packageName = "voice"
-            packageVersion = "1.0.0"
+            packageVersion = "0.1.0"
         }
     }
 }
