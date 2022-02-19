@@ -1,5 +1,6 @@
 package managers
 
+import com.hera.voice.BuildConfig.SPEECH_API_KEY
 import com.microsoft.cognitiveservices.speech.CancellationReason
 import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer
@@ -7,7 +8,7 @@ import com.microsoft.cognitiveservices.speech.audio.AudioConfig
 
 class SpeechManager {
 
-    private val subscriptionKey = "efcf3d32d3ca4d9fa2d18c8874bab6b7"
+    private val subscriptionKey = SPEECH_API_KEY
     private val regionCode = "eastus"
 
     val recognizer: SpeechRecognizer

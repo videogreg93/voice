@@ -140,3 +140,4 @@ replay_pid*
 /build/
 /.idea/*
 /.gradle/
+keys.properties
