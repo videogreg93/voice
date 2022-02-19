@@ -41,7 +41,7 @@ jobs:
         automatic_release_tag: "latest"
         prerelease: false
         files: |
-          *.msi
+          build/compose/binaries/main/msi/*.msi
     - name: Setup versioned release
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
