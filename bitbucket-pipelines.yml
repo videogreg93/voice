@@ -20,5 +20,32 @@ pipelines:
             - gradle
           script:
             - bash ./gradlew packageMsi
+            - bash ls
           artifacts:
-            - /build/compose/binaries/main/msi/**
+            - build/compose/**
+            - build/**
+            - builds/**
+      - step:
+          name: Upload to downloads section
+          deployment: staging
+          caches:
+            - gradle
+          script:
+            - pipe: atlassian/bitbucket-upload-file:0.3.1
+              variables:
+                BITBUCKET_USERNAME: $BITBUCKET_USERNAME
+                BITBUCKET_APP_PASSWORD: $BITBUCKET_APP_PASSWORD
+                FILENAME: 'build/compose/binaries/main/msi/voice*.msi'
+      - step:
+          name: Test jfrog connection
+          script:
+            - pipe: jfrog/jfrog-setup-cli:1.0.0
+            - source ./jfrog-setup-cli.sh
+            - jfrog rt ping --url https://voicehera.jfrog.io/artifactory/
+      - step:
+          name: Deploy to production
+          deployment: production
+          script:
+            - pipe: jfrog/jfrog-setup-cli:1.0.0
+            - source ./jfrog-setup-cli.sh
+            - jfrog rt u **/*.msi file --url https://voicehera.jfrog.io
