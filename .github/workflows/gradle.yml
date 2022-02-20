@@ -18,7 +18,7 @@ jobs:
 
     runs-on: windows-latest
     env:
-      SPEECH_API_KEY: "${{ secrets.GITHUB_TOKEN }}"
+      SPEECH_API_KEY: "${{ secrets.SPEECH_API_KEY }}"
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 16
