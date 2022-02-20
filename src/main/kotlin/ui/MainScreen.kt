@@ -15,8 +15,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hera.voice.BuildConfig
+import i18n.Messages
 import managers.FileManager
 import managers.SpeechManager
+import managers.TextBoy
 import models.VoiceField
 import org.apache.commons.io.FilenameUtils
 import replaceIdsInDocument
@@ -28,6 +31,7 @@ import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.absolutePathString
 
 
+@OptIn(ExperimentalMaterialApi::class)
 class MainScreen(val speechManager: SpeechManager) {
     @ExperimentalMaterialApi
     @Composable
@@ -66,29 +70,39 @@ class MainScreen(val speechManager: SpeechManager) {
             startingText = allTexts[selectedInputIndex]
         }
 
-        var openDialog by remember { mutableStateOf(false) }
+        var showExportDialog by remember { mutableStateOf(false) }
+        var showAboutDialog by remember { mutableStateOf(false) }
 
         MaterialTheme(
             colors = MaterialTheme.colors.copy(
                 primary = Color.Blue,
-
+                onPrimary = Color.White,
             )
         ) {
             var isRecording by remember { mutableStateOf(false) }
             Scaffold(
                 topBar = {
-                    TopAppBar {
-                        Text("Voice", modifier = Modifier.padding(start = 12.dp, end = 24.dp),
-                        color = MaterialTheme.colors.onPrimary)
-                        var recordButtonText by remember { mutableStateOf("Record") }
+                    TopAppBar(
+                        contentColor = MaterialTheme.colors.onPrimary
+                    ) {
+                        TextButton(onClick = {
+                            showAboutDialog = true
+                        }) {
+                            Text(
+                                text = TextBoy.getMessage(Messages.appName),
+                                modifier = Modifier.padding(start = 12.dp, end = 24.dp),
+                                color = MaterialTheme.colors.onPrimary
+                            )
+                        }
+                        var recordButtonText by remember { mutableStateOf(TextBoy.getMessage(Messages.record)) }
                         val onClick = {
                             isRecording = !isRecording
                             recordButtonText = if (isRecording) {
                                 speechManager.recognizer.startContinuousRecognitionAsync()
-                                "Recording..."
+                                TextBoy.getMessage(Messages.recording)
                             } else {
                                 speechManager.recognizer.stopContinuousRecognitionAsync()
-                                "Record"
+                                TextBoy.getMessage(Messages.record)
                             }
                         }
                         recordButton(recordButtonText, onClick)
@@ -119,17 +133,17 @@ class MainScreen(val speechManager: SpeechManager) {
                                     output = FileOutputStream(output)
                                 )
                                 exportedFilename = output.absolutePath
-                                openDialog = true
+                                showExportDialog = true
                             }
                         }
-                        if (openDialog) {
+                        if (showExportDialog) {
                             AlertDialog(
                                 title = {
-                                    Text("Success!")
+                                    Text(TextBoy.getMessage(Messages.success))
                                 },
                                 text = {
                                     SelectionContainer {
-                                        Text("Successfully generated at $exportedFilename")
+                                        Text("${TextBoy.getMessage(Messages.success)} $exportedFilename")
                                     }
                                 },
                                 buttons = {
@@ -137,25 +151,28 @@ class MainScreen(val speechManager: SpeechManager) {
                                         Button(
                                             onClick = {
                                                 Desktop.getDesktop().open(File(exportedFilename))
-                                                openDialog = false
+                                                showExportDialog = false
                                             }
                                         ) {
-                                            Text("Open")
+                                            Text(TextBoy.getMessage(Messages.openCta))
                                         }
                                         Spacer(modifier = Modifier.size(16.dp))
                                         Button(
                                             onClick = {
-                                                openDialog = false
+                                                showExportDialog = false
 
                                             }
                                         ) {
-                                            Text("Ok")
+                                            Text(TextBoy.getMessage(Messages.ok))
                                         }
                                     }
 
                                 },
                                 onDismissRequest = {},
                             )
+                        }
+                        if (showAboutDialog) {
+                            AboutDialog { showAboutDialog = false }
                         }
                     }
                 }
@@ -212,7 +229,7 @@ class MainScreen(val speechManager: SpeechManager) {
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onPrimary),
             )
             Spacer(Modifier.padding(4.dp))
-            Text("Export")
+            Text(TextBoy.getMessage(Messages.export))
         }
     }
 
@@ -237,6 +254,38 @@ class MainScreen(val speechManager: SpeechManager) {
                 .onFocusChanged(onFocusChange),
             onValueChange = onChange,
             label = { Text(voiceField.label) },
+        )
+    }
+
+    @Composable
+    fun AboutDialog(onDismiss: () -> Unit) {
+        AlertDialog(
+            title = {
+                Text("About")
+            },
+            text = {
+                SelectionContainer {
+                    Column(
+                        modifier = Modifier.defaultMinSize(minWidth = 600.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text("Version: ${BuildConfig.APP_VERSION}")
+                        Text(TextBoy.getMessage(Messages.foundABug))
+                        Text(TextBoy.getMessage(Messages.latestRelease))
+                    }
+                }
+            },
+            buttons = {
+                Row(modifier = Modifier.padding(32.dp)) {
+                    Button(
+                        onClick = onDismiss
+                    ) {
+                        Text(TextBoy.getMessage(Messages.ok))
+                    }
+                }
+
+            },
+            onDismissRequest = {},
         )
     }
 }

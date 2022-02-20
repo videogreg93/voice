@@ -3,6 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
 import java.io.FileInputStream
+import kotlin.text.StringBuilder
 
 plugins {
     kotlin("jvm") version "1.5.31"
@@ -11,7 +12,7 @@ plugins {
 }
 
 group = "com.hera"
-version = "1.0"
+version = "0.1.0"
 
 repositories {
     google()
@@ -47,6 +48,7 @@ tasks.withType<KotlinCompile>() {
 
 buildConfig {
     buildConfigField("String", "SPEECH_API_KEY", "\"${getSpeechApiKey()}\"")
+    buildConfigField("String", "APP_VERSION", "\"${version}\"")
 }
 
 compose.desktop {
@@ -71,4 +73,25 @@ fun getSpeechApiKey(): String {
     } else {
         value
     }
+}
+
+task("regenerateMessages") {
+    val messagesFile = file("src/main/resources/i18n/messages.properties")
+    val enumFile = file("src/main/kotlin/i18n/Messages.kt")
+    enumFile.createNewFile()
+    val output = StringBuilder()
+    output.append("""
+        package i18n
+        
+        enum class Messages(val value: String) {
+          
+    """.trimIndent())
+    val messagesProperties = Properties().apply {
+        load(FileInputStream(messagesFile))
+    }
+    messagesProperties.propertyNames().toList().filterIsInstance<String>().forEach {
+        output.append("$it(\"$it\"),\n")
+    }
+    output.append("}")
+    enumFile.writeText(output.toString())
 }
