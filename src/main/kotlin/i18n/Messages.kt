@@ -4,6 +4,7 @@ enum class Messages(val value: String) {
   foundABug("foundABug"),
 recording("recording"),
 openCta("openCta"),
+latestReleaseUrl("latestReleaseUrl"),
 latestRelease("latestRelease"),
 success_message("success_message"),
 record("record"),

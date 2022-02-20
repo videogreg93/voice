@@ -3,6 +3,7 @@ package ui
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -12,7 +13,12 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hera.voice.BuildConfig
@@ -26,6 +32,7 @@ import replaceIdsInDocument
 import java.awt.Desktop
 import java.io.File
 import java.io.FileOutputStream
+import java.util.*
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.absolutePathString
@@ -172,7 +179,10 @@ class MainScreen(val speechManager: SpeechManager) {
                             )
                         }
                         if (showAboutDialog) {
-                            AboutDialog { showAboutDialog = false }
+                            AboutDialog( { showAboutDialog = false },
+                                { url ->
+                                    // TODO open url
+                                })
                         }
                     }
                 }
@@ -258,7 +268,7 @@ class MainScreen(val speechManager: SpeechManager) {
     }
 
     @Composable
-    fun AboutDialog(onDismiss: () -> Unit) {
+    fun AboutDialog(onDismiss: () -> Unit, onClickUrl: (String) -> Unit) {
         AlertDialog(
             title = {
                 Text("About")
@@ -271,7 +281,33 @@ class MainScreen(val speechManager: SpeechManager) {
                     ) {
                         Text("Version: ${BuildConfig.APP_VERSION}")
                         Text(TextBoy.getMessage(Messages.foundABug))
-                        Text(TextBoy.getMessage(Messages.latestRelease))
+                        val urlText = buildAnnotatedString {
+                            append(TextBoy.getMessage(Messages.latestRelease))
+                            pushStringAnnotation(
+                                tag = "URL",
+                                annotation = TextBoy.getMessage(Messages.latestReleaseUrl)
+                            )
+                            withStyle(
+                                style = SpanStyle(
+                                    color = Color.Blue,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            ) {
+                                append(TextBoy.getMessage(Messages.latestReleaseUrl))
+                            }
+
+                            pop()
+                        }
+                        ClickableText(
+                            text = urlText,
+                            onClick = { offset ->
+                                urlText.getStringAnnotations(tag = "URL", start = offset,
+                                    end = offset)
+                                    .firstOrNull()?.let { annotation ->
+                                        onClickUrl(annotation.item)
+                                    }
+                            }
+                        )
                     }
                 }
             },
