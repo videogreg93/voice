@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.hera"
-version = "0.1.0"
+version = "0.2.0"
 
 repositories {
     google()
@@ -58,7 +58,7 @@ compose.desktop {
             targetFormats(TargetFormat.Msi)
             includeAllModules = true
             packageName = "voice"
-            packageVersion = "0.1.0"
+            packageVersion = version.toString()
         }
     }
 }
