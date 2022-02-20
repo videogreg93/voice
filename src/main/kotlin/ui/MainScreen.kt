@@ -4,15 +4,19 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -26,12 +30,15 @@ import i18n.Messages
 import managers.FileManager
 import managers.SpeechManager
 import managers.TextBoy
+import models.Doctor
 import models.VoiceField
 import org.apache.commons.io.FilenameUtils
 import replaceIdsInDocument
+import java.awt.Cursor
 import java.awt.Desktop
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URI
 import java.util.*
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -39,7 +46,7 @@ import kotlin.io.path.absolutePathString
 
 
 @OptIn(ExperimentalMaterialApi::class)
-class MainScreen(val speechManager: SpeechManager) {
+class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
     @ExperimentalMaterialApi
     @Composable
     @Preview
@@ -55,7 +62,7 @@ class MainScreen(val speechManager: SpeechManager) {
             VoiceField("Diagnostic Préopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_preoperatoire}"),
             VoiceField("Diagnostic Postopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_postoperatoire}"),
             VoiceField("Protocole Opératoire", VoiceField.Size.LARGE, "{id_protocole_operatoire}"),
-            VoiceField("Nom du médecin", VoiceField.Size.SMALL, "{id_nom_medecin}"),
+            VoiceField("Nom du médecin", VoiceField.Size.SMALL, "{id_nom_medecin}", isUsername = true),
             VoiceField("Département", VoiceField.Size.SMALL, "{id_nom_departement}"),
         )
 
@@ -79,6 +86,11 @@ class MainScreen(val speechManager: SpeechManager) {
 
         var showExportDialog by remember { mutableStateOf(false) }
         var showAboutDialog by remember { mutableStateOf(false) }
+
+        // Prefill username field
+        inputs.indexOfFirst { it.isUsername }.takeUnless { it == -1 }?.let { index ->
+            allTexts[index] = user.givenName
+        }
 
         MaterialTheme(
             colors = MaterialTheme.colors.copy(
@@ -181,7 +193,11 @@ class MainScreen(val speechManager: SpeechManager) {
                         if (showAboutDialog) {
                             AboutDialog( { showAboutDialog = false },
                                 { url ->
-                                    // TODO open url
+                                    println(url)
+                                    if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                                        println("Open Url")
+                                        Desktop.getDesktop().browse(URI(url))
+                                    }
                                 })
                         }
                     }
@@ -267,6 +283,7 @@ class MainScreen(val speechManager: SpeechManager) {
         )
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun AboutDialog(onDismiss: () -> Unit, onClickUrl: (String) -> Unit) {
         AlertDialog(
@@ -298,16 +315,19 @@ class MainScreen(val speechManager: SpeechManager) {
 
                             pop()
                         }
-                        ClickableText(
-                            text = urlText,
-                            onClick = { offset ->
-                                urlText.getStringAnnotations(tag = "URL", start = offset,
-                                    end = offset)
-                                    .firstOrNull()?.let { annotation ->
-                                        onClickUrl(annotation.item)
-                                    }
-                            }
-                        )
+                        DisableSelection {
+                            ClickableText(
+                                text = urlText,
+                                modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
+                                onClick = { offset ->
+                                    urlText.getStringAnnotations(tag = "URL", start = offset,
+                                        end = offset)
+                                        .firstOrNull()?.let { annotation ->
+                                            onClickUrl(annotation.item)
+                                        }
+                                }
+                            )
+                        }
                     }
                 }
             },
