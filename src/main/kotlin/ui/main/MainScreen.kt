@@ -1,4 +1,4 @@
-package ui
+package ui.main
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -39,7 +38,6 @@ import java.awt.Desktop
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
-import java.util.*
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.absolutePathString
@@ -47,50 +45,30 @@ import kotlin.io.path.absolutePathString
 
 @OptIn(ExperimentalMaterialApi::class)
 class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
+    val viewModel = MainScreenViewModel(user)
+
     @ExperimentalMaterialApi
     @Composable
     @Preview
     fun App() {
-        val inputs = listOf(
-            VoiceField("Date de l'Opération", VoiceField.Size.SMALL, "{id_date}"),
-            VoiceField("Nom du patient", VoiceField.Size.SMALL, "{id_nom_patient}", true),
-            VoiceField("Numéro de dossier", VoiceField.Size.SMALL, "{id_number}"),
-            VoiceField("NAM", VoiceField.Size.SMALL, "{id_nam}"),
-            VoiceField("DDN", VoiceField.Size.SMALL, "{id_ddn}"),
-            VoiceField("Âge", VoiceField.Size.SMALL, "{id_age}"),
-            VoiceField("No Visite", VoiceField.Size.SMALL, "{id_visite}"),
-            VoiceField("Diagnostic Préopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_preoperatoire}"),
-            VoiceField("Diagnostic Postopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_postoperatoire}"),
-            VoiceField("Protocole Opératoire", VoiceField.Size.LARGE, "{id_protocole_operatoire}"),
-            VoiceField("Nom du médecin", VoiceField.Size.SMALL, "{id_nom_medecin}", isUsername = true),
-            VoiceField("Département", VoiceField.Size.SMALL, "{id_nom_departement}"),
-        )
-
-        val allTexts = mutableStateListOf(
-            *inputs.map { "" }.toTypedArray()
-        )
         val stateVertical = rememberScrollState(0)
-        // Used during recognition to append current session to previous text
-        var startingText = ""
-
-        var selectedInputIndex: Int by remember { mutableStateOf(0) }
         var exportedFilename by remember { mutableStateOf(FileManager.generatedDocument.absolutePathString()) }
 
         speechManager.recognizer.recognizing.addEventListener { _, e ->
-            allTexts[selectedInputIndex] = startingText + " " + e.result.text
+            viewModel.state.onSpeechRecognizing(" " + e.result.text)
         }
         speechManager.recognizer.recognized.addEventListener { s, e ->
-            allTexts[selectedInputIndex] = startingText + " " + e.result.text
-            startingText = allTexts[selectedInputIndex]
+            viewModel.state.onSpeechRecognized(" " + e.result.text)
         }
 
         var showExportDialog by remember { mutableStateOf(false) }
         var showAboutDialog by remember { mutableStateOf(false) }
 
         // Prefill username field
-        inputs.indexOfFirst { it.isUsername }.takeUnless { it == -1 }?.let { index ->
-            allTexts[index] = user.givenName
-        }
+        // TODO
+//        inputs.indexOfFirst { it.isUsername }.takeUnless { it == -1 }?.let { index ->
+//            allTexts[index] = user.givenName
+//        }
 
         MaterialTheme(
             colors = MaterialTheme.colors.copy(
@@ -127,8 +105,8 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                         recordButton(recordButtonText, onClick)
                         Spacer(Modifier.width(32.dp))
                         exportButton {
-                            val fileName = inputs.indexOfFirst { it.isFileName }.takeUnless { it == -1 }?.let {
-                                allTexts[it] + ".docx"
+                            val fileName = viewModel.state.inputs.firstOrNull { it.isFileName }?.let {
+                                it.text + ".docx"
                             } ?: "generated.docx"
                             val fileChooser = JFileChooser(FileManager.myDocuments).apply {
                                 selectedFile = File(fileName)
@@ -145,8 +123,8 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                                     )
                                 }
                                 replaceIdsInDocument(
-                                    inputs = allTexts.mapIndexed { index, s ->
-                                        inputs[index].id to s
+                                    inputs = viewModel.state.inputs.map {
+                                        it.id to it.text
                                     },
                                     input = FileManager.template,
                                     output = FileOutputStream(output)
@@ -191,11 +169,11 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                             )
                         }
                         if (showAboutDialog) {
-                            AboutDialog( { showAboutDialog = false },
+                            AboutDialog({ showAboutDialog = false },
                                 { url ->
-                                    println(url)
-                                    if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                                        println("Open Url")
+                                    if (Desktop.isDesktopSupported() && Desktop.getDesktop()
+                                            .isSupported(Desktop.Action.BROWSE)
+                                    ) {
                                         Desktop.getDesktop().browse(URI(url))
                                     }
                                 })
@@ -211,19 +189,20 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                     modifier = Modifier.fillMaxWidth().verticalScroll(stateVertical),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    inputs.mapIndexed { index, voiceField ->
+                    viewModel.state.inputs.mapIndexed { index, voiceField ->
                         VoiceTextField(
-                            voiceField, allTexts[index],
+                            voiceField,
+                            voiceField.text,
                             onChange = {
                                 if (!isRecording) {
-                                    allTexts[index] = it
-                                    startingText = it
+                                    viewModel.state.onTextChange(index, it)
                                 }
                             },
                             onFocusChange = {
                                 if (it.hasFocus) {
-                                    selectedInputIndex = index
-                                    startingText = allTexts[index]
+                                    viewModel.state.onInputFocusChanged(index)
+//                                    selectedInputIndex = index
+//                                    startingText = allTexts[index]
                                 }
                             }
                         )
@@ -320,8 +299,10 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                                 text = urlText,
                                 modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
                                 onClick = { offset ->
-                                    urlText.getStringAnnotations(tag = "URL", start = offset,
-                                        end = offset)
+                                    urlText.getStringAnnotations(
+                                        tag = "URL", start = offset,
+                                        end = offset
+                                    )
                                         .firstOrNull()?.let { annotation ->
                                             onClickUrl(annotation.item)
                                         }
