@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -47,11 +48,12 @@ import kotlin.io.path.absolutePathString
 @OptIn(ExperimentalMaterialApi::class)
 class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
 
+    private val viewModel = MainScreenViewModel(user, TemplateManager())
+
     @ExperimentalMaterialApi
     @Composable
     @Preview
     fun App() {
-        val viewModel by remember { mutableStateOf(MainScreenViewModel(user, TemplateManager())) }
         val stateVertical = rememberScrollState(0)
         var exportedFilename by remember { mutableStateOf(FileManager.generatedDocument.absolutePathString()) }
 
@@ -59,6 +61,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
             viewModel.state.onSpeechRecognizing(" " + e.result.text)
         }
         speechManager.recognizer.recognized.addEventListener { s, e ->
+            println("On Speech Recognized start")
             viewModel.state.onSpeechRecognized(" " + e.result.text)
         }
 
@@ -208,24 +211,28 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                     modifier = Modifier.fillMaxWidth().verticalScroll(stateVertical),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    viewModel.state.inputs.mapIndexed { index, voiceField ->
-                        VoiceTextField(
-                            voiceField,
-                            voiceField.text,
-                            onChange = {
-                                if (!isRecording) {
-                                    viewModel.state.onTextChange(index, it)
-                                }
-                            },
-                            onFocusChange = {
-                                if (it.hasFocus) {
-                                    viewModel.state.onInputFocusChanged(index)
-                                }
-                            }
-                        )
-                    }
+                    TextFields(isRecording, viewModel.state.inputs)
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun TextFields(isRecording: Boolean, inputs: SnapshotStateList<VoiceField>) {
+        inputs.mapIndexed { index, voiceField ->
+            VoiceTextField(
+                voiceField,
+                onChange = {
+                    if (!isRecording) {
+                        viewModel.state.onTextChange(index, it)
+                    }
+                },
+                onFocusChange = {
+                    if (it.hasFocus) {
+                        viewModel.state.onInputFocusChanged(index)
+                    }
+                }
+            )
         }
     }
 
@@ -258,7 +265,6 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
     @Composable
     fun VoiceTextField(
         voiceField: VoiceField,
-        input: String,
         onChange: (String) -> Unit,
         onFocusChange: (FocusState) -> Unit
     ) {
@@ -268,7 +274,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
             VoiceField.Size.LARGE -> 200.dp
         }
         OutlinedTextField(
-            value = input,
+            value = voiceField.text,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .padding(top = 16.dp)

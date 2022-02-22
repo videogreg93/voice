@@ -13,14 +13,20 @@ class TemplateManager {
 
     fun loadDefaultTemplate() = loadTemplate(DEFAULT_FILENAME)
 
+    private val json by lazy {
+        Json {
+            ignoreUnknownKeys = true
+        }
+    }
+
     fun loadTemplate(name: String): Template {
         val file = File(FileManager.mainFolder.toFile(), "$name$FILE_EXTENSION")
         val fileText = file.readText()
-        return Json.decodeFromString(fileText)
+        return json.decodeFromString(fileText)
     }
 
     fun saveTemplate(name: String, template: Template) {
-        val templateJson = Json.encodeToString(template)
+        val templateJson = json.encodeToString(template)
         val file = File(FileManager.mainFolder.toFile(), "$name$FILE_EXTENSION")
         file.writeText(templateJson)
         println(file.absolutePath)
