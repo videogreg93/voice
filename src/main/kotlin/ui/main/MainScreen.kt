@@ -105,27 +105,26 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                         }
                     }
                     Spacer(Modifier.width(32.dp))
-                    if (true) { // TODO enable when ready
-                        Box {
-                            Button(
-                                onClick = viewModel.state.onDropdownButtonClicked,
-                                enabled = !viewModel.state.isRecording,
-                                colors = ButtonDefaults.buttonColors(
-                                    disabledBackgroundColor = Color(0xFF00008b) // TODO better themeing
-                                )
-                            ) {
-                                Text(
-                                    viewModel.state.templateNames[viewModel.state.selectedDropdownIndex],
-                                    color = MaterialTheme.colors.onPrimary
-                                )
-                            }
-                            TemplatesDropDown(
-                                expanded = viewModel.state.isDropdownExpanded,
-                                onDismissRequest = viewModel.state.onDropdownDismissRequest,
-                                viewModel.state.templateNames,
-                                onItemClick = viewModel.state.onDropdownItemClicked
+                    Box {
+                        Button(
+                            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
+                            onClick = viewModel.state.onDropdownButtonClicked,
+                            enabled = !viewModel.state.isRecording,
+                            colors = ButtonDefaults.buttonColors(
+                                disabledBackgroundColor = Color(0xFF00008b) // TODO better themeing
+                            )
+                        ) {
+                            Text(
+                                viewModel.state.templateNames[viewModel.state.selectedDropdownIndex],
+                                color = MaterialTheme.colors.onPrimary
                             )
                         }
+                        TemplatesDropDown(
+                            expanded = viewModel.state.isDropdownExpanded,
+                            onDismissRequest = viewModel.state.onDropdownDismissRequest,
+                            viewModel.state.templateNames,
+                            onItemClick = viewModel.state.onDropdownItemClicked
+                        )
                     }
 
                     if (showExportDialog) {
