@@ -47,4 +47,8 @@ class SpeechManager {
         }
         return recognizer
     }
+
+    companion object {
+        val instance by lazy { SpeechManager() }
+    }
 }

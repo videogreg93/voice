@@ -5,7 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import i18n.Messages
+import managers.SpeechManager
 import managers.TemplateManager
+import managers.TextBoy
 import models.Doctor
 import models.VoiceField
 import ui.base.ViewModel
@@ -13,6 +16,7 @@ import ui.base.ViewModel
 class MainScreenViewModel(
     user: Doctor,
     val templateManager: TemplateManager,
+    val speechManager: SpeechManager,
 ) : ViewModel<MainScreenViewModel.MainScreenState>() {
 
     private val template = templateManager.loadDefaultTemplate()
@@ -31,6 +35,7 @@ class MainScreenViewModel(
             ::onSpeechRecognizing,
             ::onSpeechRecognized,
             ::onDropdownItemClicked,
+            ::onRecordButtonClicked,
         ).apply {
             inputs = templateManager.loadDefaultTemplate().inputs
             templateNames = templateManager.getTemplateNames()
@@ -43,6 +48,13 @@ class MainScreenViewModel(
         // Prefill username is correct input
         state.inputs.indexOfFirst { it.isUsername }.takeUnless { it == -1 }?.let {
             state.inputs[it].text = user.givenName
+        }
+
+        speechManager.recognizer.recognizing.addEventListener { _, e ->
+            state.onSpeechRecognizing(" " + e.result.text)
+        }
+        speechManager.recognizer.recognized.addEventListener { s, e ->
+            state.onSpeechRecognized(" " + e.result.text)
         }
     }
 
@@ -68,10 +80,18 @@ class MainScreenViewModel(
     private fun onDropdownItemClicked(index: Int) {
         state.selectedDropdownIndex = index
         state.isDropdownExpanded = false
-        state.inputs
         state.inputs = templateManager.loadTemplate(state.templateNames[index]).inputs
-        println(state.inputs.first())
+    }
 
+    private fun onRecordButtonClicked() {
+        state.isRecording = !state.isRecording
+        state.recordButtonText = if (state.isRecording) {
+            speechManager.recognizer.startContinuousRecognitionAsync()
+            TextBoy.getMessage(Messages.recording)
+        } else {
+            speechManager.recognizer.stopContinuousRecognitionAsync()
+            TextBoy.getMessage(Messages.record)
+        }
     }
 
     data class MainScreenState(
@@ -82,12 +102,14 @@ class MainScreenViewModel(
         val onInputFocusChanged: (Int) -> Unit,
         val onSpeechRecognizing: (String) -> Unit,
         val onSpeechRecognized: (String) -> Unit,
-        val onDropdownItemClicked: (Int) -> Unit
+        val onDropdownItemClicked: (Int) -> Unit,
+        val onRecordButtonClicked: () -> Unit,
     ) {
         var templateNames: List<String> = mutableStateListOf()
         var inputs: List<VoiceField> = mutableStateListOf()
         var isRecording by mutableStateOf(false)
         var selectedDropdownIndex by mutableStateOf(0)
         var isDropdownExpanded by mutableStateOf(false)
+        var recordButtonText by mutableStateOf(TextBoy.getMessage(Messages.record))
     }
 }

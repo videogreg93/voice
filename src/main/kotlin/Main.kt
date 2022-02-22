@@ -53,7 +53,7 @@ private fun MainWindow(user: Doctor, onExit: () -> Unit) {
         onCloseRequest = onExit,
         title = "Voice"
     ) {
-        MainScreen(user, SpeechManager()).App()
+        MainScreen(user, SpeechManager.instance)
     }
 }
 
