@@ -28,6 +28,7 @@ import com.hera.voice.BuildConfig
 import i18n.Messages
 import managers.FileManager
 import managers.SpeechManager
+import managers.TemplateManager
 import managers.TextBoy
 import models.Doctor
 import models.VoiceField
@@ -45,7 +46,7 @@ import kotlin.io.path.absolutePathString
 
 @OptIn(ExperimentalMaterialApi::class)
 class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
-    val viewModel = MainScreenViewModel(user)
+    val viewModel = MainScreenViewModel(user, TemplateManager())
 
     @ExperimentalMaterialApi
     @Composable
@@ -64,12 +65,6 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
         var showExportDialog by remember { mutableStateOf(false) }
         var showAboutDialog by remember { mutableStateOf(false) }
 
-        // Prefill username field
-        // TODO
-//        inputs.indexOfFirst { it.isUsername }.takeUnless { it == -1 }?.let { index ->
-//            allTexts[index] = user.givenName
-//        }
-
         MaterialTheme(
             colors = MaterialTheme.colors.copy(
                 primary = Color.Blue,
@@ -77,6 +72,9 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
             )
         ) {
             var isRecording by remember { mutableStateOf(false) }
+            var isTemplatesDropdownExpanded by remember { mutableStateOf(false) }
+            val templatesItems = listOf("Protocole Opératoire", "BEM")
+            var templatesSelectedIndex by remember { mutableStateOf(0) }
             Scaffold(
                 topBar = {
                     TopAppBar(
@@ -133,6 +131,27 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                                 showExportDialog = true
                             }
                         }
+                        Spacer(Modifier.width(32.dp))
+                        Box {
+                            Button(
+                                onClick = { isTemplatesDropdownExpanded = true }
+                            ) {
+                                Text(
+                                    templatesItems[templatesSelectedIndex],
+                                    color = MaterialTheme.colors.onPrimary
+                                )
+                            }
+                            TemplatesDropDown(
+                                expanded = isTemplatesDropdownExpanded,
+                                onDismissRequest = { isTemplatesDropdownExpanded = false },
+                                templatesItems,
+                                onItemClick = {
+                                    templatesSelectedIndex = it
+                                    isTemplatesDropdownExpanded = false
+                                }
+                            )
+                        }
+
                         if (showExportDialog) {
                             AlertDialog(
                                 title = {
@@ -201,8 +220,6 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                             onFocusChange = {
                                 if (it.hasFocus) {
                                     viewModel.state.onInputFocusChanged(index)
-//                                    selectedInputIndex = index
-//                                    startingText = allTexts[index]
                                 }
                             }
                         )
@@ -324,5 +341,28 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
             },
             onDismissRequest = {},
         )
+    }
+
+    @Composable
+    fun TemplatesDropDown(
+        expanded: Boolean,
+        onDismissRequest: () -> Unit,
+        items: List<String>,
+        onItemClick: (Int) -> Unit,
+    ) {
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = onDismissRequest
+        ) {
+            items.forEachIndexed { index, item ->
+                DropdownMenuItem(
+                    onClick = {
+                        onItemClick(index)
+                    }
+                ) {
+                    Text(item)
+                }
+            }
+        }
     }
 }

@@ -3,33 +3,22 @@ package ui.main
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import managers.TemplateManager
 import models.Doctor
 import models.VoiceField
 import ui.base.ViewModel
 
-class MainScreenViewModel(user: Doctor) : ViewModel<MainScreenViewModel.MainScreenState>() {
+class MainScreenViewModel(
+    user: Doctor,
+    val templateManager: TemplateManager,
+) : ViewModel<MainScreenViewModel.MainScreenState>() {
 
-    private val defaultInputs = listOf(
-        VoiceField("Date de l'Opération", VoiceField.Size.SMALL, "{id_date}"),
-        VoiceField("Nom du patient", VoiceField.Size.SMALL, "{id_nom_patient}", true),
-        VoiceField("Numéro de dossier", VoiceField.Size.SMALL, "{id_number}"),
-        VoiceField("NAM", VoiceField.Size.SMALL, "{id_nam}"),
-        VoiceField("DDN", VoiceField.Size.SMALL, "{id_ddn}"),
-        VoiceField("Âge", VoiceField.Size.SMALL, "{id_age}"),
-        VoiceField("No Visite", VoiceField.Size.SMALL, "{id_visite}"),
-        VoiceField("Diagnostic Préopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_preoperatoire}"),
-        VoiceField("Diagnostic Postopératoire", VoiceField.Size.MEDIUM, "{id_diagnostic_postoperatoire}"),
-        VoiceField("Protocole Opératoire", VoiceField.Size.LARGE, "{id_protocole_operatoire}"),
-        VoiceField("Nom du médecin", VoiceField.Size.SMALL, "{id_nom_medecin}", isUsername = true),
-        VoiceField("Département", VoiceField.Size.SMALL, "{id_nom_departement}"),
-    )
+    private val template = templateManager.loadDefaultTemplate()
 
     override var state: MainScreenState by mutableStateOf(
         MainScreenState(
             user,
-            ArrayList(
-                defaultInputs
-            ),
+            ArrayList(template.inputs),
             ::onTextChange,
             0,
             ::onInputFocusChanged,
