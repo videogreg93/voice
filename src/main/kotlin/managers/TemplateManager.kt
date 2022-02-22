@@ -29,6 +29,10 @@ class TemplateManager {
         return json.decodeFromString(fileText)
     }
 
+    fun saveBEM() {
+        // TODO
+    }
+
     fun saveTemplate(name: String, template: Template) {
         val templateJson = json.encodeToString(template)
         val file = File(FileManager.mainFolder.toFile(), "$name$FILE_EXTENSION")

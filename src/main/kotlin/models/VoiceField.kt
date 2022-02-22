@@ -13,8 +13,8 @@ data class VoiceField(
     val isFileName: Boolean = false,
     val isUsername: Boolean = false,
     val isPermitNumber: Boolean = false,
+    val text: String = "",
 ) {
-    var text by mutableStateOf("")
     enum class Size {
         SMALL, MEDIUM, LARGE
     }

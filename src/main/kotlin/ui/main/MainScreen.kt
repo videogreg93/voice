@@ -29,10 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.hera.voice.BuildConfig
 import i18n.Messages
 import managers.FileManager
-import managers.SpeechManager
-import managers.TemplateManager
 import managers.TextBoy
-import models.Doctor
 import models.VoiceField
 import org.apache.commons.io.FilenameUtils
 import replaceIdsInDocument
@@ -47,9 +44,8 @@ import kotlin.io.path.absolutePathString
 
 @Composable
 @Preview
-fun MainScreen(user: Doctor, speechManager: SpeechManager) {
-    val viewModel = MainScreenViewModel(user, TemplateManager(), speechManager)
-
+fun MainScreen(viewModel: MainScreenViewModel) {
+    println("Call Main Screen")
     val stateVertical = rememberScrollState(0)
     var exportedFilename by remember { mutableStateOf(FileManager.generatedDocument.absolutePathString()) }
 
@@ -112,7 +108,11 @@ fun MainScreen(user: Doctor, speechManager: SpeechManager) {
                     if (true) { // TODO enable when ready
                         Box {
                             Button(
-                                onClick = { viewModel.state.isDropdownExpanded = true },
+                                onClick = viewModel.state.onDropdownButtonClicked,
+                                enabled = !viewModel.state.isRecording,
+                                colors = ButtonDefaults.buttonColors(
+                                    disabledBackgroundColor = Color(0xFF00008b) // TODO better themeing
+                                )
                             ) {
                                 Text(
                                     viewModel.state.templateNames[viewModel.state.selectedDropdownIndex],
@@ -121,11 +121,9 @@ fun MainScreen(user: Doctor, speechManager: SpeechManager) {
                             }
                             TemplatesDropDown(
                                 expanded = viewModel.state.isDropdownExpanded,
-                                onDismissRequest = { viewModel.state.isDropdownExpanded = false },
+                                onDismissRequest = viewModel.state.onDropdownDismissRequest,
                                 viewModel.state.templateNames,
-                                onItemClick = {
-                                    viewModel.state.onDropdownItemClicked(it)
-                                }
+                                onItemClick = viewModel.state.onDropdownItemClicked
                             )
                         }
                     }
