@@ -15,15 +15,17 @@ class MainScreenViewModel(
 
     private val template = templateManager.loadDefaultTemplate()
 
+    // TODO avoid loading the template twice
     override var state: MainScreenState by mutableStateOf(
         MainScreenState(
+            template.templateFile,
             user,
-            ArrayList(template.inputs),
+            ArrayList(templateManager.loadDefaultTemplate().inputs),
             ::onTextChange,
             0,
             ::onInputFocusChanged,
             ::onSpeechRecognizing,
-            ::onSpeechRecognized
+            ::onSpeechRecognized,
         )
     )
 
@@ -62,6 +64,7 @@ class MainScreenViewModel(
     }
 
     data class MainScreenState(
+        val templateFile: String,
         val currentUser: Doctor,
         val inputs: ArrayList<VoiceField>,
         val onTextChange: (Int, String) -> Unit,

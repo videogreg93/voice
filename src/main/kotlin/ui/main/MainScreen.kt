@@ -124,7 +124,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                                     inputs = viewModel.state.inputs.map {
                                         it.id to it.text
                                     },
-                                    input = FileManager.template,
+                                    input = File(FileManager.mainFolder.toFile(), viewModel.state.templateFile),
                                     output = FileOutputStream(output)
                                 )
                                 exportedFilename = output.absolutePath
