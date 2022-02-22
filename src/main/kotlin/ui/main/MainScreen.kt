@@ -51,13 +51,13 @@ import androidx.compose.runtime.setValue
 @OptIn(ExperimentalMaterialApi::class)
 class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
 
-    private val viewModel = MainScreenViewModel(user, TemplateManager())
-
     @OptIn(ExperimentalComposeUiApi::class)
     @ExperimentalMaterialApi
     @Composable
     @Preview
     fun App() {
+        val viewModel = MainScreenViewModel(user, TemplateManager())
+        println("Init ViewModel")
         val stateVertical = rememberScrollState(0)
         var exportedFilename by remember { mutableStateOf(FileManager.generatedDocument.absolutePathString()) }
 
@@ -213,25 +213,35 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                     modifier = Modifier.fillMaxWidth().verticalScroll(stateVertical),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TextFields(viewModel.state.isRecording, viewModel.state.inputs)
+                    TextFields(
+                        viewModel.state.isRecording,
+                        viewModel.state.inputs,
+                        viewModel.state.onTextChange,
+                        viewModel.state.onInputFocusChanged,
+                    )
                 }
             }
         }
     }
 
     @Composable
-    private fun TextFields(isRecording: Boolean, inputs: List<VoiceField>) {
+    private fun TextFields(
+        isRecording: Boolean,
+        inputs: List<VoiceField>,
+        onTextChange: (Int, String) -> Unit,
+        onFocusChange: (Int) -> Unit,
+    ) {
         inputs.mapIndexed { index, voiceField ->
             VoiceTextField(
                 voiceField,
                 onChange = {
                     if (!isRecording) {
-                        viewModel.state.onTextChange(index, it)
+                        onTextChange(index, it)
                     }
                 },
                 onFocusChange = {
                     if (it.hasFocus) {
-                        viewModel.state.onInputFocusChanged(index)
+                        onFocusChange(index)
                     }
                 }
             )
