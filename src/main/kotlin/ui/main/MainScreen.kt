@@ -43,6 +43,9 @@ import java.net.URI
 import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 import kotlin.io.path.absolutePathString
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -50,6 +53,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
 
     private val viewModel = MainScreenViewModel(user, TemplateManager())
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @ExperimentalMaterialApi
     @Composable
     @Preview
@@ -73,9 +77,6 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                 onPrimary = Color.White,
             )
         ) {
-            var isTemplatesDropdownExpanded by remember { mutableStateOf(false) }
-            val templatesItems = listOf("Protocole Opératoire", "BEM")
-            var templatesSelectedIndex by remember { mutableStateOf(0) }
             Scaffold(
                 topBar = {
                     TopAppBar(
@@ -86,7 +87,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                         }) {
                             Text(
                                 text = TextBoy.getMessage(Messages.appName),
-                                modifier = Modifier.padding(start = 12.dp, end = 24.dp),
+                                modifier = Modifier.padding(start = 12.dp, end = 24.dp).pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
                                 color = MaterialTheme.colors.onPrimary
                             )
                         }
@@ -133,24 +134,25 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                             }
                         }
                         Spacer(Modifier.width(32.dp))
-                        Box {
-                            Button(
-                                onClick = { isTemplatesDropdownExpanded = true }
-                            ) {
-                                Text(
-                                    templatesItems[templatesSelectedIndex],
-                                    color = MaterialTheme.colors.onPrimary
+                        if (false) { // TODO enable when ready
+                            Box {
+                                Button(
+                                    onClick = { viewModel.state.isDropdownExpanded = true },
+                                ) {
+                                    Text(
+                                        viewModel.state.templateNames[viewModel.state.selectedDropdownIndex],
+                                        color = MaterialTheme.colors.onPrimary
+                                    )
+                                }
+                                TemplatesDropDown(
+                                    expanded = viewModel.state.isDropdownExpanded,
+                                    onDismissRequest = { viewModel.state.isDropdownExpanded = false },
+                                    viewModel.state.templateNames,
+                                    onItemClick = {
+                                        viewModel.state.onDropdownItemClicked(it)
+                                    }
                                 )
                             }
-                            TemplatesDropDown(
-                                expanded = isTemplatesDropdownExpanded,
-                                onDismissRequest = { isTemplatesDropdownExpanded = false },
-                                templatesItems,
-                                onItemClick = {
-                                    templatesSelectedIndex = it
-                                    isTemplatesDropdownExpanded = false
-                                }
-                            )
                         }
 
                         if (showExportDialog) {
@@ -166,6 +168,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                                 buttons = {
                                     Row(modifier = Modifier.padding(32.dp)) {
                                         Button(
+                                            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
                                             onClick = {
                                                 Desktop.getDesktop().open(File(exportedFilename))
                                                 showExportDialog = false
@@ -175,6 +178,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                                         }
                                         Spacer(modifier = Modifier.size(16.dp))
                                         Button(
+                                            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
                                             onClick = {
                                                 showExportDialog = false
 
@@ -216,7 +220,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
     }
 
     @Composable
-    private fun TextFields(isRecording: Boolean, inputs: SnapshotStateList<VoiceField>) {
+    private fun TextFields(isRecording: Boolean, inputs: List<VoiceField>) {
         inputs.mapIndexed { index, voiceField ->
             VoiceTextField(
                 voiceField,
@@ -356,7 +360,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
     ) {
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = onDismissRequest
+            onDismissRequest = onDismissRequest,
         ) {
             items.forEachIndexed { index, item ->
                 DropdownMenuItem(

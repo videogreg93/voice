@@ -1,9 +1,9 @@
 package ui.main
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import managers.TemplateManager
 import models.Doctor
@@ -25,14 +25,16 @@ class MainScreenViewModel(
         MainScreenState(
             template.templateFile,
             user,
-            mutableStateListOf(*templateManager.loadDefaultTemplate().inputs.toTypedArray()),
             ::onTextChange,
             0,
-            false,
             ::onInputFocusChanged,
             ::onSpeechRecognizing,
             ::onSpeechRecognized,
-        )
+            ::onDropdownItemClicked,
+        ).apply {
+            inputs = templateManager.loadDefaultTemplate().inputs
+            templateNames = templateManager.getTemplateNames()
+        }
     )
 
     private var startingText = ""
@@ -63,15 +65,29 @@ class MainScreenViewModel(
         startingText = selectedVoiceField.text
     }
 
+    private fun onDropdownItemClicked(index: Int) {
+        state.selectedDropdownIndex = index
+        state.isDropdownExpanded = false
+        state.inputs
+        state.inputs = templateManager.loadTemplate(state.templateNames[index]).inputs
+        println(state.inputs.first())
+
+    }
+
     data class MainScreenState(
         val templateFile: String,
         val currentUser: Doctor,
-        val inputs: SnapshotStateList<VoiceField>,
         val onTextChange: (Int, String) -> Unit,
         var selectedInputIndex: Int,
-        var isRecording: Boolean,
         val onInputFocusChanged: (Int) -> Unit,
         val onSpeechRecognizing: (String) -> Unit,
-        val onSpeechRecognized: (String) -> Unit
-    )
+        val onSpeechRecognized: (String) -> Unit,
+        val onDropdownItemClicked: (Int) -> Unit
+    ) {
+        var templateNames: List<String> = mutableStateListOf()
+        var inputs: List<VoiceField> = mutableStateListOf()
+        var isRecording by mutableStateOf(false)
+        var selectedDropdownIndex by mutableStateOf(0)
+        var isDropdownExpanded by mutableStateOf(false)
+    }
 }

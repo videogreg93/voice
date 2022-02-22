@@ -19,6 +19,10 @@ class TemplateManager {
         }
     }
 
+    fun getTemplateNames(): List<String> {
+        return listOf(DEFAULT_FILENAME, BEM_FILENAME)
+    }
+
     fun loadTemplate(name: String): Template {
         val file = File(FileManager.mainFolder.toFile(), "$name$FILE_EXTENSION")
         val fileText = file.readText()
@@ -35,5 +39,6 @@ class TemplateManager {
     companion object {
         private const val FILE_EXTENSION = ".json"
         private const val DEFAULT_FILENAME = "protocolOperatoire"
+        private const val BEM_FILENAME = "BEM"
     }
 }

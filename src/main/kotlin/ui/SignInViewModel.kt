@@ -20,6 +20,10 @@ class SignInViewModel(
         )
     )
 
+    init {
+        onPermitInputChange("112233")
+    }
+
     private fun onPermitInputChange(input: String) {
         val user = userManager.getUser(input)
         state = state.copy(
