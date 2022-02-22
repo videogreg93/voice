@@ -48,14 +48,14 @@ class MainScreenViewModel(
     )
 
     init {
-        // Prefill username is correct input
-        state.inputs.indexOfFirst { it.isUsername }.takeUnless { it == -1 }?.let {
+        // Prefill username with correct input
+        // TODO make this work when changing template.
+        state.inputs.filter { it.isUsername }.map { state.inputs.indexOf(it) }.filter { it != -1 }.forEach {
             val newList = ArrayList(state.inputs)
             newList[it] = newList[it].copy(text = user.givenName)
             state = state.copy(
                 inputs = newList
             )
-//            state.inputs[it].text = user.givenName
         }
         speechManager.recognizer.recognizing.removeEventListener { any, speechRecognitionEventArgs -> }
 
@@ -101,13 +101,15 @@ class MainScreenViewModel(
     }
 
     private fun onDropdownItemClicked(index: Int) {
-        val newInputs = templateManager.loadTemplate(state.templateNames[index]).inputs
+        val newTemplate = templateManager.loadTemplate(state.templateNames[index])
+        val newInputs = newTemplate.inputs
         state = state.copy(
             selectedDropdownIndex = index,
             inputs = templateManager.loadTemplate(state.templateNames[index]).inputs,
             isDropdownExpanded = false,
             startingText = "",
             selectedInputIndex = min(state.selectedInputIndex, newInputs.size),
+            templateFile = newTemplate.templateFile
         )
     }
 

@@ -28,7 +28,7 @@ fun main() = application {
             onCloseRequest = ::exitApplication,
             state = rememberWindowState(
                 width = 600.dp,
-                height = 300.dp,
+                height = 350.dp,
             ),
             title = "Sign in"
         ) {

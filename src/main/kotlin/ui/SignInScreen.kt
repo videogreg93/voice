@@ -1,9 +1,6 @@
 package ui
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import i18n.Messages
 import i18n.text
+import managers.Prefs
 import managers.TextBoy
 import managers.UserManager
 import models.Doctor
@@ -21,11 +19,11 @@ class SignInScreen(
     private val userManager: UserManager,
 ) {
 
-    private val viewModel = SignInViewModel(userManager)
-
 
     @Composable
     fun setup() {
+
+        val viewModel by remember { mutableStateOf(SignInViewModel(userManager)) }
         MaterialTheme(
             colors = MaterialTheme.colors.copy(
                 primary = Color.Blue,
@@ -55,6 +53,12 @@ class SignInScreen(
                         Spacer(Modifier.padding(top = 12.dp))
                         Text(user.givenName)
                         Text("#${user.permit}")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(viewModel.state.isRememberMeChecked, viewModel.state.onTapRememberMe)
+                            Text(Messages.rememberMe.text)
+                        }
                     }
                     PracticeNumberInput(
                         input = viewModel.state.permitNumber,
@@ -63,6 +67,11 @@ class SignInScreen(
                     SignInButton(
                         validation = viewModel.state.signInEnabled,
                         onClick = {
+                            if (viewModel.state.isRememberMeChecked) {
+                                Prefs.setLastUser(viewModel.state.permitNumber)
+                            } else {
+                                Prefs.setLastUser("")
+                            }
                             viewModel.state.user?.let(onSignInSuccessful)
                                 ?: println("Could not find user ${viewModel.state.permitNumber}")
                         }

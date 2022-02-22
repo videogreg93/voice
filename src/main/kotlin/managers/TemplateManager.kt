@@ -4,6 +4,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import models.Template
+import models.VoiceField
 import java.io.File
 
 /**
@@ -27,10 +28,6 @@ class TemplateManager {
         val file = File(FileManager.mainFolder.toFile(), "$name$FILE_EXTENSION")
         val fileText = file.readText()
         return json.decodeFromString(fileText)
-    }
-
-    fun saveBEM() {
-        // TODO
     }
 
     fun saveTemplate(name: String, template: Template) {
