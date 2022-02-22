@@ -61,7 +61,6 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
             viewModel.state.onSpeechRecognizing(" " + e.result.text)
         }
         speechManager.recognizer.recognized.addEventListener { s, e ->
-            println("On Speech Recognized start")
             viewModel.state.onSpeechRecognized(" " + e.result.text)
         }
 
@@ -74,7 +73,6 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                 onPrimary = Color.White,
             )
         ) {
-            var isRecording by remember { mutableStateOf(false) }
             var isTemplatesDropdownExpanded by remember { mutableStateOf(false) }
             val templatesItems = listOf("Protocole Opératoire", "BEM")
             var templatesSelectedIndex by remember { mutableStateOf(0) }
@@ -94,8 +92,8 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                         }
                         var recordButtonText by remember { mutableStateOf(TextBoy.getMessage(Messages.record)) }
                         val onClick = {
-                            isRecording = !isRecording
-                            recordButtonText = if (isRecording) {
+                            viewModel.state.isRecording = !viewModel.state.isRecording
+                            recordButtonText = if (viewModel.state.isRecording) {
                                 speechManager.recognizer.startContinuousRecognitionAsync()
                                 TextBoy.getMessage(Messages.recording)
                             } else {
@@ -211,7 +209,7 @@ class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
                     modifier = Modifier.fillMaxWidth().verticalScroll(stateVertical),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TextFields(isRecording, viewModel.state.inputs)
+                    TextFields(viewModel.state.isRecording, viewModel.state.inputs)
                 }
             }
         }

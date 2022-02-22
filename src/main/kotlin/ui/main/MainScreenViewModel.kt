@@ -28,6 +28,7 @@ class MainScreenViewModel(
             mutableStateListOf(*templateManager.loadDefaultTemplate().inputs.toTypedArray()),
             ::onTextChange,
             0,
+            false,
             ::onInputFocusChanged,
             ::onSpeechRecognizing,
             ::onSpeechRecognized,
@@ -45,11 +46,11 @@ class MainScreenViewModel(
 
     private fun onTextChange(index: Int, newValue: String) {
         state.inputs[index].text = newValue
+        startingText = selectedVoiceField.text
     }
 
     private fun onInputFocusChanged(index: Int) {
         state.selectedInputIndex = index
-//        state = state.copy(selectedInputIndex = index)
         startingText = selectedVoiceField.text
     }
 
@@ -59,7 +60,7 @@ class MainScreenViewModel(
 
     private fun onSpeechRecognized(value: String) {
         selectedVoiceField.text = startingText + value
-        startingText = value
+        startingText = selectedVoiceField.text
     }
 
     data class MainScreenState(
@@ -68,6 +69,7 @@ class MainScreenViewModel(
         val inputs: SnapshotStateList<VoiceField>,
         val onTextChange: (Int, String) -> Unit,
         var selectedInputIndex: Int,
+        var isRecording: Boolean,
         val onInputFocusChanged: (Int) -> Unit,
         val onSpeechRecognizing: (String) -> Unit,
         val onSpeechRecognized: (String) -> Unit
