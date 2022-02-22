@@ -2,14 +2,13 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import managers.FileManager
 import managers.SpeechManager
 import managers.UserManager
 import models.Doctor
-import ui.MainScreen
+import ui.main.MainScreen
 import ui.SignInScreen
 import java.nio.file.Files
 import kotlin.io.path.exists
@@ -28,7 +27,8 @@ fun main() = application {
             state = rememberWindowState(
                 width = 600.dp,
                 height = 300.dp,
-            )
+            ),
+            title = "Sign in"
         ) {
             SignInScreen(
                 onSignInSuccessful = {
@@ -51,6 +51,7 @@ fun main() = application {
 private fun MainWindow(user: Doctor, onExit: () -> Unit) {
     Window(
         onCloseRequest = onExit,
+        title = "Voice"
     ) {
         MainScreen(user, SpeechManager()).App()
     }

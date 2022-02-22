@@ -1,6 +1,7 @@
 package ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -19,6 +20,8 @@ class SignInScreen(
     private val onSignInSuccessful: (Doctor) -> Unit,
     private val userManager: UserManager,
 ) {
+
+    private val viewModel = SignInViewModel(userManager)
 
 
     @Composable
@@ -42,22 +45,26 @@ class SignInScreen(
                     }
                 },
             ) {
-                var permitNumberInput: String by remember { mutableStateOf("") }
+
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    val user = viewModel.state.user
+                    if (user != null) {
+                        Spacer(Modifier.padding(top = 12.dp))
+                        Text(user.givenName)
+                        Text("#${user.permit}")
+                    }
                     PracticeNumberInput(
-                        input = permitNumberInput,
-                        onValueChange = { permitNumberInput = it }
+                        input = viewModel.state.permitNumber,
+                        onValueChange = viewModel.state.onPermitInputChange
                     )
                     SignInButton(
-                        validation = {
-                            userManager.validateUser(permitNumberInput)
-                        },
+                        validation = viewModel.state.signInEnabled,
                         onClick = {
-                            userManager.getUser(permitNumberInput)?.let(onSignInSuccessful)
-                                ?: println("Could not find user $permitNumberInput")
+                            viewModel.state.user?.let(onSignInSuccessful)
+                                ?: println("Could not find user ${viewModel.state.permitNumber}")
                         }
                     )
                 }
