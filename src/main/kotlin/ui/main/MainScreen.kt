@@ -46,12 +46,12 @@ import kotlin.io.path.absolutePathString
 
 @OptIn(ExperimentalMaterialApi::class)
 class MainScreen(val user: Doctor, val speechManager: SpeechManager) {
-    val viewModel = MainScreenViewModel(user, TemplateManager())
 
     @ExperimentalMaterialApi
     @Composable
     @Preview
     fun App() {
+        val viewModel by remember { mutableStateOf(MainScreenViewModel(user, TemplateManager())) }
         val stateVertical = rememberScrollState(0)
         var exportedFilename by remember { mutableStateOf(FileManager.generatedDocument.absolutePathString()) }
 
