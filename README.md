@@ -4,6 +4,7 @@
 - 04260
 
 ### TODO 
+- Added template switching on the fly
 - Sign in avec le numéro de pratique du médecin
   - Rempli automatiquement la case du nom de médecin
   - Linké aussi avec la signature du médecin
