@@ -79,16 +79,13 @@ fun getSpeechApiKey(): String {
 }
 
 fun getBooleanProperty(key: String, defaultValue: Boolean): Boolean {
-    val value = System.getenv(key)?.let {
-        it.toBoolean()
-    }
-    return if (value == null) {
+    return try {
         val keysFile = file("keys.properties")
         val keysProperties = Properties()
         keysProperties.load(FileInputStream(keysFile))
         keysProperties.getProperty(key)?.let { it.toBoolean() } ?: defaultValue
-    } else {
-        value
+    } catch (e: Exception) {
+        defaultValue
     }
 }
 
