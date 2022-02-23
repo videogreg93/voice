@@ -1,8 +1,5 @@
 package models
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,6 +10,8 @@ data class VoiceField(
     val isFileName: Boolean = false,
     val isUsername: Boolean = false,
     val isPermitNumber: Boolean = false,
+    val isAbbreviation: Boolean = false,
+    val isHidden: Boolean = false,
     val text: String = "",
 ) {
     enum class Size {

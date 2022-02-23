@@ -3,6 +3,7 @@ package ui.main
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.toLowerCase
 import i18n.Messages
 import managers.SpeechManager
 import managers.TemplateManager
@@ -11,6 +12,8 @@ import models.Doctor
 import models.VoiceField
 import ui.base.ViewModel
 import java.lang.Integer.min
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainScreenViewModel(
     user: Doctor,
@@ -37,6 +40,7 @@ class MainScreenViewModel(
             0,
             false,
             templateManager.getTemplateNames(),
+            "",
             ::onInputFocusChanged,
             ::onSpeechRecognizing,
             ::onSpeechRecognized,
@@ -44,6 +48,8 @@ class MainScreenViewModel(
             ::onDropdownButtonClicked,
             ::onDropdownDismissRequest,
             ::onRecordButtonClicked,
+            ::onAddTextFieldClicked,
+            ::onAddTextFieldChanged,
         )
     )
 
@@ -140,6 +146,24 @@ class MainScreenViewModel(
         )
     }
 
+    private fun onAddTextFieldChanged(value: String) {
+        state = state.copy(
+            addTextFieldInput = value
+        )
+    }
+
+    private fun onAddTextFieldClicked() {
+        val newList = ArrayList(state.inputs) + VoiceField(
+            label = state.addTextFieldInput,
+            size = VoiceField.Size.SMALL,
+            id = "{${state.addTextFieldInput.lowercase(Locale.CANADA_FRENCH)}}"
+        )
+
+        state = state.copy(
+            inputs = newList
+        )
+    }
+
     data class MainScreenState(
         val templateFile: String,
         val currentUser: Doctor,
@@ -152,6 +176,7 @@ class MainScreenViewModel(
         val selectedDropdownIndex: Int,
         val isDropdownExpanded: Boolean,
         val templateNames: List<String>,
+        val addTextFieldInput: String,
         val onInputFocusChanged: (Int) -> Unit,
         val onSpeechRecognizing: (String) -> Unit,
         val onSpeechRecognized: (String) -> Unit,
@@ -159,6 +184,8 @@ class MainScreenViewModel(
         val onDropdownButtonClicked: () -> Unit,
         val onDropdownDismissRequest: () -> Unit,
         val onRecordButtonClicked: () -> Unit,
+        val onAddTextFieldClicked: () -> Unit,
+        val onAddTextFieldChanged: (String) -> Unit,
     )
 
     companion object {

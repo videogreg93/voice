@@ -187,11 +187,34 @@ fun MainScreen(viewModel: MainScreenViewModel) {
             ) {
                 TextFields(
                     viewModel.state.isRecording,
-                    viewModel.state.inputs,
+                    viewModel.state.inputs.filterNot { it.isHidden },
                     viewModel.state.onTextChange,
                     viewModel.state.onInputFocusChanged,
                 )
+                if (false) { // TODO enable if needed
+                    AddInputButton(viewModel)
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun AddInputButton(viewModel: MainScreenViewModel) {
+    Row(
+        verticalAlignment = Alignment.Bottom,
+        modifier = Modifier.fillMaxWidth(0.8f).padding(top = 32.dp)
+    ) {
+        OutlinedTextField(
+            value = viewModel.state.addTextFieldInput,
+            onValueChange = viewModel.state.onAddTextFieldChanged,
+            modifier = Modifier.defaultMinSize(minWidth = 100.dp)
+        )
+        Spacer(Modifier.width(16.dp))
+        Button(
+            onClick = viewModel.state.onAddTextFieldClicked
+        ) {
+            Text("Add Input")
         }
     }
 }
