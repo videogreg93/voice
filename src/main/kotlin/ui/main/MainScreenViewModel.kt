@@ -3,16 +3,22 @@ package ui.main
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import i18n.Messages
+import managers.speech.SpeechManagerImpl
 import managers.TemplateManager
+import managers.TextBoy
+import managers.speech.SpeechManager
 import models.Doctor
 import models.VoiceField
 import ui.base.ViewModel
+import java.lang.Integer.min
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainScreenViewModel(
     user: Doctor,
-    val templateManager: TemplateManager,
+    private val templateManager: TemplateManager,
+    private val speechManager: SpeechManager,
 ) : ViewModel<MainScreenViewModel.MainScreenState>() {
 
     private val template = templateManager.loadDefaultTemplate()
@@ -25,69 +31,176 @@ class MainScreenViewModel(
         MainScreenState(
             template.templateFile,
             user,
+            "",
+            templateManager.loadDefaultTemplate().inputs,
             ::onTextChange,
+            false,
+            TextBoy.getMessage(Messages.record),
             0,
+            0,
+            false,
+            templateManager.getTemplateNames(),
+            "",
             ::onInputFocusChanged,
             ::onSpeechRecognizing,
             ::onSpeechRecognized,
             ::onDropdownItemClicked,
-        ).apply {
-            inputs = templateManager.loadDefaultTemplate().inputs
-            templateNames = templateManager.getTemplateNames()
-        }
+            ::onDropdownButtonClicked,
+            ::onDropdownDismissRequest,
+            ::onRecordButtonClicked,
+            ::onAddTextFieldClicked,
+            ::onAddTextFieldChanged,
+        )
     )
 
-    private var startingText = ""
-
     init {
-        // Prefill username is correct input
-        state.inputs.indexOfFirst { it.isUsername }.takeUnless { it == -1 }?.let {
-            state.inputs[it].text = user.givenName
+        // Prefill username with correct input
+        // TODO make this work when changing template.
+        state.inputs.filter { it.isUsername }.map { state.inputs.indexOf(it) }.filter { it != -1 }.forEach {
+            val newList = ArrayList(state.inputs)
+            newList[it] = newList[it].copy(text = user.givenName)
+            state = state.copy(
+                inputs = newList
+            )
+        }
+//        speechManager.recognizer.recognizing.removeEventListener { any, speechRecognitionEventArgs -> }
+
+        speechManager.addRecognizingListener {
+            state.onSpeechRecognizing(" $it")
+        }
+        speechManager.addRecognizedListener {
+            state.onSpeechRecognized(" $it")
         }
     }
 
     private fun onTextChange(index: Int, newValue: String) {
-        state.inputs[index].text = newValue
-        startingText = selectedVoiceField.text
+        val newList = ArrayList(state.inputs)
+        newList[index] = state.inputs[index].copy(text = newValue)
+        state = state.copy(
+            inputs = newList,
+            startingText = selectedVoiceField.text
+        )
     }
 
     private fun onInputFocusChanged(index: Int) {
-        state.selectedInputIndex = index
-        startingText = selectedVoiceField.text
+        state = state.copy(
+            selectedInputIndex = index,
+            startingText = state.inputs[index].text
+        )
     }
 
     private fun onSpeechRecognizing(value: String) {
-        selectedVoiceField.text = startingText + value
+        val newList = ArrayList(state.inputs)
+        newList[state.selectedInputIndex] = newList[state.selectedInputIndex].copy(text = state.startingText + value)
+        state = state.copy(
+            inputs = newList
+        )
     }
 
     private fun onSpeechRecognized(value: String) {
-        selectedVoiceField.text = startingText + value
-        startingText = selectedVoiceField.text
+        val newList = ArrayList(state.inputs)
+        newList[state.selectedInputIndex] = newList[state.selectedInputIndex].copy(text = state.startingText + value)
+        state = state.copy(
+            inputs = newList,
+            startingText = state.inputs[state.selectedInputIndex].text
+        )
     }
 
     private fun onDropdownItemClicked(index: Int) {
-        state.selectedDropdownIndex = index
-        state.isDropdownExpanded = false
-        state.inputs
-        state.inputs = templateManager.loadTemplate(state.templateNames[index]).inputs
-        println(state.inputs.first())
+        val newTemplate = templateManager.loadTemplate(state.templateNames[index])
+        val newInputs = newTemplate.inputs
+        state = state.copy(
+            selectedDropdownIndex = index,
+            inputs = templateManager.loadTemplate(state.templateNames[index]).inputs,
+            isDropdownExpanded = false,
+            startingText = "",
+            selectedInputIndex = min(state.selectedInputIndex, newInputs.size),
+            templateFile = newTemplate.templateFile
+        )
+    }
 
+    private fun onDropdownButtonClicked() {
+        state = state.copy(
+            isDropdownExpanded = true
+        )
+    }
+
+    private fun onDropdownDismissRequest() {
+        state = state.copy(
+            isDropdownExpanded = false,
+        )
+    }
+
+    private fun onRecordButtonClicked() {
+        val isRecording = !state.isRecording
+        val recordButtonText = if (isRecording) {
+            speechManager.startContinuousRecognitionAsync()
+            TextBoy.getMessage(Messages.recording)
+        } else {
+            speechManager.stopContinuousRecognitionAsync()
+            TextBoy.getMessage(Messages.record)
+        }
+        state = state.copy(
+            isRecording = isRecording,
+            recordButtonText = recordButtonText,
+        )
+    }
+
+    private fun onAddTextFieldChanged(value: String) {
+        state = state.copy(
+            addTextFieldInput = value
+        )
+    }
+
+    private fun onAddTextFieldClicked() {
+        val newList = ArrayList(state.inputs) + VoiceField(
+            label = state.addTextFieldInput,
+            size = VoiceField.Size.SMALL,
+            id = "{${state.addTextFieldInput.lowercase(Locale.CANADA_FRENCH)}}"
+        )
+
+        state = state.copy(
+            inputs = newList
+        )
     }
 
     data class MainScreenState(
         val templateFile: String,
         val currentUser: Doctor,
+        val startingText: String,
+        val inputs: List<VoiceField>,
         val onTextChange: (Int, String) -> Unit,
-        var selectedInputIndex: Int,
+        val isRecording: Boolean,
+        val recordButtonText: String,
+        val selectedInputIndex: Int,
+        val selectedDropdownIndex: Int,
+        val isDropdownExpanded: Boolean,
+        val templateNames: List<String>,
+        val addTextFieldInput: String,
         val onInputFocusChanged: (Int) -> Unit,
         val onSpeechRecognizing: (String) -> Unit,
         val onSpeechRecognized: (String) -> Unit,
-        val onDropdownItemClicked: (Int) -> Unit
-    ) {
-        var templateNames: List<String> = mutableStateListOf()
-        var inputs: List<VoiceField> = mutableStateListOf()
-        var isRecording by mutableStateOf(false)
-        var selectedDropdownIndex by mutableStateOf(0)
-        var isDropdownExpanded by mutableStateOf(false)
+        val onDropdownItemClicked: (Int) -> Unit,
+        val onDropdownButtonClicked: () -> Unit,
+        val onDropdownDismissRequest: () -> Unit,
+        val onRecordButtonClicked: () -> Unit,
+        val onAddTextFieldClicked: () -> Unit,
+        val onAddTextFieldChanged: (String) -> Unit,
+    )
+
+    companion object {
+
+        fun create(
+            user: Doctor,
+            templateManager: TemplateManager,
+            speechManager: SpeechManager,
+        ): MainScreenViewModel {
+            if (instance == null) {
+                instance = MainScreenViewModel(user, templateManager, speechManager)
+            }
+            return instance!!
+        }
+
+        var instance: MainScreenViewModel? = null
     }
 }

@@ -5,11 +5,13 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import managers.FileManager
-import managers.SpeechManager
+import managers.speech.SpeechManagerImpl
+import managers.TemplateManager
 import managers.UserManager
 import models.Doctor
 import ui.main.MainScreen
 import ui.SignInScreen
+import ui.main.MainScreenViewModel
 import java.nio.file.Files
 import kotlin.io.path.exists
 
@@ -26,7 +28,7 @@ fun main() = application {
             onCloseRequest = ::exitApplication,
             state = rememberWindowState(
                 width = 600.dp,
-                height = 300.dp,
+                height = 350.dp,
             ),
             title = "Sign in"
         ) {
@@ -53,7 +55,8 @@ private fun MainWindow(user: Doctor, onExit: () -> Unit) {
         onCloseRequest = onExit,
         title = "Voice"
     ) {
-        MainScreen(user, SpeechManager()).App()
+        val viewModel by remember { mutableStateOf(MainScreenViewModel.create(user, TemplateManager(), SpeechManagerImpl.instance)) }
+        MainScreen(viewModel)
     }
 }
 

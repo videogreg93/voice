@@ -20,6 +20,11 @@ fun replaceIdsInDocument(inputs: List<Pair<String,String>>, input: File, output:
                 FileUtils.copyInputStreamToFile(it, FileManager.template);
             }
         }
+        if (!FileManager.BEMtemplate.exists()) {
+            getResource("BEMTemplate.docx")?.let {
+                FileUtils.copyInputStreamToFile(it, FileManager.BEMtemplate)
+            }
+        }
         val doc = XWPFDocument(
             OPCPackage.open(input)
         )

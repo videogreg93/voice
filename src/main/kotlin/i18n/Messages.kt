@@ -13,5 +13,6 @@ appName("appName"),
 ok("ok"),
 export("export"),
 success("success"),
+rememberMe("rememberMe"),
 signIn("signIn"),
 }
