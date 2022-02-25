@@ -16,8 +16,8 @@ fun replaceIdsInDocument(inputs: List<Pair<String,String>>, input: File, output:
         // Create folders and copy documents
         if (!FileManager.mainFolder.toFile().exists()) Files.createDirectories(FileManager.mainFolder)
         if (!FileManager.template.exists()) {
-            getResource("template.docx")?.let {
-                FileUtils.copyInputStreamToFile(it, FileManager.template);
+            getResource("protocolOperatoireTemplate.docx")?.let {
+                FileUtils.copyInputStreamToFile(it, FileManager.template)
             }
         }
         if (!FileManager.BEMtemplate.exists()) {

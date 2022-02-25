@@ -1,0 +1,106 @@
+{
+    "inputs": [
+        {
+            "label": "Nom",
+            "id": "{id_patient_name}"
+        },
+        {
+            "label": "Dossier CNESST",
+            "id": "{id_cnesst}",
+            "isFileName": true
+        },
+        {
+            "label": "# Dossier",
+            "id": "{id_dossier}"
+        },
+        {
+            "label": "Employeur",
+            "id": "{id_employer}"
+        },
+        {
+            "label": "Membre du BEM",
+            "id": "{id_doctor_name}",
+            "isUsername": true
+        },
+        {
+            "label": "Endroit",
+            "size": "MEDIUM",
+            "id": "{id_location}"
+        },
+        {
+            "label": "Date de l'examen",
+            "id": "{id_date}"
+        },
+        {
+            "label": "Objet",
+            "id": "{id_objet}"
+        },
+        {
+            "label": "Raison de l'avis",
+            "size": "LARGE",
+            "id": "{id_reason}"
+        },
+        {
+            "label": "Declaration du membre du BEM & consentement en temps de pandémie",
+            "size": "LARGE",
+            "id": "{id_declaration}"
+        },
+        {
+            "label": "Âge",
+            "id": "{id_age}"
+        },
+        {
+            "label": "Emploi",
+            "size": "MEDIUM",
+            "id": "{id_work}"
+        },
+        {
+            "label": "Antécédents",
+            "size": "MEDIUM",
+            "id": "{id_antecedent}"
+        },
+        {
+            "label": "Anamnèse",
+            "size": "LARGE",
+            "id": "{id_anamnese}"
+        },
+        {
+            "label": "Revue du Dossier",
+            "size": "LARGE",
+            "id": "{id_dossier_review}"
+        },
+        {
+            "label": "État Actuel",
+            "size": "LARGE",
+            "id": "{id_etat_actuel}"
+        },
+        {
+            "label": "Examen Objectif",
+            "size": "LARGE",
+            "id": "{id_examen_objectif}"
+        },
+        {
+            "label": "Discussion",
+            "size": "LARGE",
+            "id": "{id_discussion}"
+        },
+        {
+            "label": "Diagnostic",
+            "size": "LARGE",
+            "id": "{id_diagnostic}"
+        },
+        {
+            "label": "Conclusion",
+            "size": "LARGE",
+            "id": "{id_conclusion}"
+        },
+        {
+            "label": "Abbreviation",
+            "size": "SMALL",
+            "isAbbreviation": true,
+            "isHidden": true,
+            "id": "{id_abbreviation}"
+        }
+    ],
+    "templateFile": "BEMTemplate.docx"
+}
