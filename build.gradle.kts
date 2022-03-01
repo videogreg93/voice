@@ -6,8 +6,8 @@ import java.io.FileInputStream
 import kotlin.text.StringBuilder
 
 plugins {
-    kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0"
+    kotlin("jvm") version "1.6.10"
+    id("org.jetbrains.compose") version "1.1.0"
     id("com.github.gmazzo.buildconfig") version "3.0.3"
     kotlin("plugin.serialization") version "1.6.10"
 }
@@ -42,6 +42,7 @@ dependencies {
         version = "5.2.0"
     )
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+    testImplementation(compose("org.jetbrains.compose.ui:ui-test-junit4"))
 }
 
 tasks.withType<KotlinCompile>() {

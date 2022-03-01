@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import managers.Prefs
-import managers.UserManager
+import managers.user.UserManager
 import models.Doctor
 import ui.base.ViewModel
 
@@ -31,7 +31,7 @@ class SignInViewModel(
         state = state.copy(isRememberMeChecked = value)
     }
 
-    private fun onPermitInputChange(input: String) {
+    fun onPermitInputChange(input: String) {
         val user = userManager.getUser(input)
         state = state.copy(
             permitNumber = input,

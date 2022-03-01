@@ -6,12 +6,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import i18n.Messages
 import i18n.text
 import managers.Prefs
 import managers.TextBoy
-import managers.UserManager
+import managers.user.UserManager
 import models.Doctor
 
 class SignInScreen(
@@ -21,7 +22,7 @@ class SignInScreen(
 
 
     @Composable
-    fun setup() {
+    fun setup(): SignInViewModel {
 
         val viewModel by remember { mutableStateOf(SignInViewModel(userManager)) }
         MaterialTheme(
@@ -46,7 +47,7 @@ class SignInScreen(
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().testTag("SignInColumn")
                 ) {
                     val user = viewModel.state.user
                     if (user != null) {
@@ -79,6 +80,8 @@ class SignInScreen(
                 }
             }
         }
+
+        return viewModel
     }
 
     @Composable
@@ -87,7 +90,8 @@ class SignInScreen(
             value = input,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .padding(top = 16.dp),
+                .padding(top = 16.dp)
+                .testTag("SignInField"),
             onValueChange = onValueChange,
             label = { Text(TextBoy.getMessage(Messages.practiceNumberLabel)) },
         )
@@ -96,6 +100,7 @@ class SignInScreen(
     @Composable
     private fun SignInButton(validation: () -> Boolean, onClick: () -> Unit) {
         Button(
+            modifier = Modifier.testTag("SignInButton"),
             onClick = onClick,
             enabled = validation(),
         ) {
