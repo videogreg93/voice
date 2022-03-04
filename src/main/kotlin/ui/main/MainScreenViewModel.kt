@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import i18n.Messages
+import managers.AudioManager
 import managers.speech.SpeechManagerImpl
 import managers.TemplateManager
 import managers.TextBoy
@@ -41,12 +42,18 @@ class MainScreenViewModel(
             false,
             templateManager.getTemplateNames(),
             "",
+            inputDevices = speechManager.getSupportedInputDevices(),
+            false,
+            0,
             ::onInputFocusChanged,
             ::onSpeechRecognizing,
             ::onSpeechRecognized,
             ::onDropdownItemClicked,
             ::onDropdownButtonClicked,
             ::onDropdownDismissRequest,
+            ::onInputDeviceDropdownItemClicked,
+            ::onInputDeviceButtonClicked,
+            ::onInputDeviceDismissRequest,
             ::onRecordButtonClicked,
             ::onAddTextFieldClicked,
             ::onAddTextFieldChanged,
@@ -131,6 +138,27 @@ class MainScreenViewModel(
         )
     }
 
+    // Input device dropdown
+
+    private fun onInputDeviceDropdownItemClicked(index: Int) {
+        state = state.copy(
+            selectedDropdownIndex = index,
+            isInputDevicesDropdownExpanded = false,
+        )
+    }
+
+    private fun onInputDeviceButtonClicked() {
+        state = state.copy(
+            isInputDevicesDropdownExpanded = true
+        )
+    }
+
+    private fun onInputDeviceDismissRequest() {
+        state = state.copy(
+            isInputDevicesDropdownExpanded = false,
+        )
+    }
+
     private fun onRecordButtonClicked() {
         val isRecording = !state.isRecording
         val recordButtonText = if (isRecording) {
@@ -177,12 +205,18 @@ class MainScreenViewModel(
         val isDropdownExpanded: Boolean,
         val templateNames: List<String>,
         val addTextFieldInput: String,
+        val inputDevices: List<AudioManager.InputDevice>,
+        val isInputDevicesDropdownExpanded: Boolean,
+        val selectedDeviceInputDropdownIndex: Int,
         val onInputFocusChanged: (Int) -> Unit,
         val onSpeechRecognizing: (String) -> Unit,
         val onSpeechRecognized: (String) -> Unit,
         val onDropdownItemClicked: (Int) -> Unit,
         val onDropdownButtonClicked: () -> Unit,
         val onDropdownDismissRequest: () -> Unit,
+        val onInputDeviceItemClicked: (Int) -> Unit,
+        val onInputDeviceButtonClicked: () -> Unit,
+        val onInputDeviceDismissRequest: () -> Unit,
         val onRecordButtonClicked: () -> Unit,
         val onAddTextFieldClicked: () -> Unit,
         val onAddTextFieldChanged: (String) -> Unit,

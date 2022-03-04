@@ -1,5 +1,7 @@
 package managers.speech
 
+import managers.AudioManager
+
 /**
  * Empty version for when we dont actually need to do speech recognition
  */
@@ -18,5 +20,9 @@ class SpeechManagerAbstract: SpeechManager {
 
     override fun stopContinuousRecognitionAsync() {
 
+    }
+
+    override fun getSupportedInputDevices(): List<AudioManager.InputDevice> {
+        return emptyList()
     }
 }

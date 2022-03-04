@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hera.voice.BuildConfig
 import i18n.Messages
+import managers.AudioManager
 import managers.FileManager
 import managers.TextBoy
 import models.VoiceField
@@ -135,6 +136,28 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                             onDismissRequest = viewModel.state.onDropdownDismissRequest,
                             viewModel.state.templateNames,
                             onItemClick = viewModel.state.onDropdownItemClicked
+                        )
+                    }
+                    Spacer(Modifier.width(32.dp))
+                    Box {
+                        Button(
+                            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
+                            onClick = viewModel.state.onInputDeviceButtonClicked,
+                            enabled = !viewModel.state.isRecording,
+                            colors = ButtonDefaults.buttonColors(
+                                disabledBackgroundColor = Color(0xFF00008b) // TODO better themeing
+                            )
+                        ) {
+                            Text(
+                                viewModel.state.inputDevices[viewModel.state.selectedDeviceInputDropdownIndex].name,
+                                color = MaterialTheme.colors.onPrimary
+                            )
+                        }
+                        InputDevicesDropDown(
+                            expanded = viewModel.state.isInputDevicesDropdownExpanded,
+                            onDismissRequest = viewModel.state.onInputDeviceDismissRequest,
+                            items = viewModel.state.inputDevices,
+                            onItemClick = viewModel.state.onInputDeviceItemClicked,
                         )
                     }
 
@@ -407,8 +430,24 @@ fun TemplatesDropDown(
 }
 
 @Composable
-fun TopMenuBar(
-    onClickRecord: () -> Unit
+fun InputDevicesDropDown(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    items: List<AudioManager.InputDevice>,
+    onItemClick: (Int) -> Unit,
 ) {
-
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+    ) {
+        items.forEachIndexed { index, item ->
+            DropdownMenuItem(
+                onClick = {
+                    onItemClick(index)
+                }
+            ) {
+                Text(item.name)
+            }
+        }
+    }
 }

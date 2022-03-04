@@ -6,15 +6,18 @@ import com.microsoft.cognitiveservices.speech.CancellationReason
 import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
+import managers.AudioManager
 
-class SpeechManagerImpl : SpeechManager {
+class SpeechManagerImpl(private val audioManager: AudioManager) : SpeechManager {
 
     private val subscriptionKey = SPEECH_API_KEY
     private val regionCode = "eastus"
 
     private val recognizer: SpeechRecognizer
+    private var currentInputDevice = audioManager.getDefaultInputDevice()
 
     init {
+        println(currentInputDevice.name)
         println("Init SpeechManager")
         recognizer = setupSpeech()
     }
@@ -26,7 +29,7 @@ class SpeechManagerImpl : SpeechManager {
         )
         speechConfig.enableDictation()
         speechConfig.speechRecognitionLanguage = "fr-CA"
-        val audioConfig = AudioConfig.fromDefaultMicrophoneInput()
+        val audioConfig = AudioConfig.fromMicrophoneInput(currentInputDevice.id)
         val recognizer = SpeechRecognizer(speechConfig, audioConfig)
         recognizer.canceled.addEventListener { s, e ->
             println("CANCELED: Reason=" + e.getReason());
@@ -69,10 +72,14 @@ class SpeechManagerImpl : SpeechManager {
         recognizer.stopContinuousRecognitionAsync()
     }
 
+    override fun getSupportedInputDevices(): List<AudioManager.InputDevice> {
+        return audioManager.getInputDevices()
+    }
+
     companion object {
         val instance: SpeechManager by lazy {
             if (BuildConfig.SPEECH_ENABLED) {
-                SpeechManagerImpl()
+                SpeechManagerImpl(AudioManager())
             } else {
                 SpeechManagerAbstract()
             }

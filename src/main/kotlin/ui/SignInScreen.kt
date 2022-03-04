@@ -7,8 +7,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.microsoft.cognitiveservices.speech.audio.AudioConfig
 import i18n.Messages
 import i18n.text
+import managers.AudioManager
 import managers.Prefs
 import managers.TextBoy
 import managers.UserManager
@@ -19,6 +21,11 @@ class SignInScreen(
     private val userManager: UserManager,
 ) {
 
+    init {
+        AudioManager()
+
+        println(AudioConfig.fromMicrophoneInput(""))
+    }
 
     @Composable
     fun setup() {
