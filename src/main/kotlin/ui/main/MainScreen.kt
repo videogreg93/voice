@@ -13,12 +13,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -59,6 +62,14 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         )
     ) {
         Scaffold(
+            modifier = Modifier.onPreviewKeyEvent {
+                if (it.isCtrlPressed && it.key == Key.R && it.type == KeyEventType.KeyDown) {
+                    viewModel.state.onRecordButtonClicked()
+                    true
+                } else {
+                    false
+                }
+            },
             topBar = {
                 TopAppBar(
                     contentColor = MaterialTheme.colors.onPrimary
@@ -182,7 +193,9 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                 adapter = rememberScrollbarAdapter(stateVertical),
             )
             Column(
-                modifier = Modifier.fillMaxWidth().verticalScroll(stateVertical),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(stateVertical),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 TextFields(
@@ -229,6 +242,7 @@ private fun TextFields(
     inputs.mapIndexed { index, voiceField ->
         VoiceTextField(
             voiceField,
+            isRecording,
             onChange = {
                 if (!isRecording) {
                     onTextChange(index, it)
@@ -272,9 +286,11 @@ fun exportButton(onTap: () -> Unit) {
 @Composable
 fun VoiceTextField(
     voiceField: VoiceField,
+    isRecording: Boolean,
     onChange: (String) -> Unit,
     onFocusChange: (FocusState) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     val height = when (voiceField.size) {
         VoiceField.Size.SMALL -> Dp.Unspecified
         VoiceField.Size.MEDIUM -> 100.dp
@@ -286,7 +302,19 @@ fun VoiceTextField(
             .fillMaxWidth(0.8f)
             .padding(top = 16.dp)
             .defaultMinSize(minHeight = height)
-            .onFocusChanged(onFocusChange),
+            .onFocusChanged(onFocusChange)
+            .onPreviewKeyEvent {
+                if (!isRecording && it.key == Key.Tab && it.type == KeyEventType.KeyDown) {
+                    if (it.isShiftPressed) {
+                        focusManager.moveFocus(FocusDirection.Up)
+                    } else {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
+                    true
+                } else {
+                    false
+                }
+            },
         onValueChange = onChange,
         label = { Text(voiceField.label) },
     )
@@ -376,4 +404,11 @@ fun TemplatesDropDown(
             }
         }
     }
+}
+
+@Composable
+fun TopMenuBar(
+    onClickRecord: () -> Unit
+) {
+
 }

@@ -3,11 +3,11 @@ package ui.main
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.toLowerCase
 import i18n.Messages
-import managers.SpeechManager
+import managers.speech.SpeechManagerImpl
 import managers.TemplateManager
 import managers.TextBoy
+import managers.speech.SpeechManager
 import models.Doctor
 import models.VoiceField
 import ui.base.ViewModel
@@ -63,13 +63,13 @@ class MainScreenViewModel(
                 inputs = newList
             )
         }
-        speechManager.recognizer.recognizing.removeEventListener { any, speechRecognitionEventArgs -> }
+//        speechManager.recognizer.recognizing.removeEventListener { any, speechRecognitionEventArgs -> }
 
-        speechManager.recognizer.recognizing.addEventListener { _, e ->
-            state.onSpeechRecognizing(" " + e.result.text)
+        speechManager.addRecognizingListener {
+            state.onSpeechRecognizing(" $it")
         }
-        speechManager.recognizer.recognized.addEventListener { s, e ->
-            state.onSpeechRecognized(" " + e.result.text)
+        speechManager.addRecognizedListener {
+            state.onSpeechRecognized(" $it")
         }
     }
 
@@ -134,10 +134,10 @@ class MainScreenViewModel(
     private fun onRecordButtonClicked() {
         val isRecording = !state.isRecording
         val recordButtonText = if (isRecording) {
-            speechManager.recognizer.startContinuousRecognitionAsync()
+            speechManager.startContinuousRecognitionAsync()
             TextBoy.getMessage(Messages.recording)
         } else {
-            speechManager.recognizer.stopContinuousRecognitionAsync()
+            speechManager.stopContinuousRecognitionAsync()
             TextBoy.getMessage(Messages.record)
         }
         state = state.copy(

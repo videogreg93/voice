@@ -1,17 +1,18 @@
-package managers
+package managers.speech
 
+import com.hera.voice.BuildConfig
 import com.hera.voice.BuildConfig.SPEECH_API_KEY
 import com.microsoft.cognitiveservices.speech.CancellationReason
 import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
 
-class SpeechManager {
+class SpeechManagerImpl : SpeechManager {
 
     private val subscriptionKey = SPEECH_API_KEY
     private val regionCode = "eastus"
 
-    val recognizer: SpeechRecognizer
+    private val recognizer: SpeechRecognizer
 
     init {
         println("Init SpeechManager")
@@ -48,7 +49,33 @@ class SpeechManager {
         return recognizer
     }
 
+    override fun addRecognizingListener(listener: (String) -> Unit) {
+        recognizer.recognizing.addEventListener { any, speechRecognitionEventArgs ->
+            listener(speechRecognitionEventArgs.result.text)
+        }
+    }
+
+    override fun addRecognizedListener(listener: (String) -> Unit) {
+        recognizer.recognized.addEventListener { any, speechRecognitionEventArgs ->
+            listener(speechRecognitionEventArgs.result.text)
+        }
+    }
+
+    override fun startContinuousRecognitionAsync() {
+        recognizer.startContinuousRecognitionAsync()
+    }
+
+    override fun stopContinuousRecognitionAsync() {
+        recognizer.stopContinuousRecognitionAsync()
+    }
+
     companion object {
-        val instance by lazy { SpeechManager() }
+        val instance: SpeechManager by lazy {
+            if (BuildConfig.SPEECH_ENABLED) {
+                SpeechManagerImpl()
+            } else {
+                SpeechManagerAbstract()
+            }
+        }
     }
 }

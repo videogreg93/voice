@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "com.hera"
-version = "0.3.0"
+version = "0.4.0"
 
 repositories {
     google()
@@ -51,6 +51,7 @@ tasks.withType<KotlinCompile>() {
 buildConfig {
     buildConfigField("String", "SPEECH_API_KEY", "\"${getSpeechApiKey()}\"")
     buildConfigField("String", "APP_VERSION", "\"${version}\"")
+    buildConfigField("Boolean", "SPEECH_ENABLED", "${getBooleanProperty("SPEECH_ENABLED", true)}")
 }
 
 compose.desktop {
@@ -74,6 +75,17 @@ fun getSpeechApiKey(): String {
         keysProperties.getProperty("SPEECH_API_KEY")
     } else {
         value
+    }
+}
+
+fun getBooleanProperty(key: String, defaultValue: Boolean): Boolean {
+    return try {
+        val keysFile = file("keys.properties")
+        val keysProperties = Properties()
+        keysProperties.load(FileInputStream(keysFile))
+        keysProperties.getProperty(key)?.let { it.toBoolean() } ?: defaultValue
+    } catch (e: Exception) {
+        defaultValue
     }
 }
 
