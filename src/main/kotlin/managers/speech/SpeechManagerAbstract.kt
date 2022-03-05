@@ -25,4 +25,8 @@ class SpeechManagerAbstract: SpeechManager {
     override fun getSupportedInputDevices(): List<AudioManager.InputDevice> {
         return emptyList()
     }
+
+    override fun setInputDevice(device: AudioManager.InputDevice) {
+
+    }
 }

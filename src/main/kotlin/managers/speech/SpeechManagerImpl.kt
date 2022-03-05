@@ -76,6 +76,11 @@ class SpeechManagerImpl(private val audioManager: AudioManager) : SpeechManager 
         return audioManager.getInputDevices()
     }
 
+    override fun setInputDevice(device: AudioManager.InputDevice) {
+        currentInputDevice = device
+        setupSpeech()
+    }
+
     companion object {
         val instance: SpeechManager by lazy {
             if (BuildConfig.SPEECH_ENABLED) {

@@ -70,8 +70,11 @@ class MainScreenViewModel(
                 inputs = newList
             )
         }
-//        speechManager.recognizer.recognizing.removeEventListener { any, speechRecognitionEventArgs -> }
 
+        setupCallbacks()
+    }
+
+    private fun setupCallbacks() {
         speechManager.addRecognizingListener {
             state.onSpeechRecognizing(" $it")
         }
@@ -141,6 +144,8 @@ class MainScreenViewModel(
     // Input device dropdown
 
     private fun onInputDeviceDropdownItemClicked(index: Int) {
+        speechManager.setInputDevice(state.inputDevices[index])
+        setupCallbacks()
         state = state.copy(
             selectedDropdownIndex = index,
             isInputDevicesDropdownExpanded = false,

@@ -8,5 +8,5 @@ interface SpeechManager {
     fun startContinuousRecognitionAsync()
     fun stopContinuousRecognitionAsync()
     fun getSupportedInputDevices(): List<AudioManager.InputDevice>
-
+    fun setInputDevice(device: AudioManager.InputDevice)
 }
