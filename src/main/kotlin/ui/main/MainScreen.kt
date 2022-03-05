@@ -140,10 +140,6 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                     }
                     Spacer(Modifier.width(32.dp))
                     Box {
-                        Text(
-                            "Input Device",
-                            color = MaterialTheme.colors.onPrimary
-                        )
                         Button(
                             modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
                             onClick = viewModel.state.onInputDeviceButtonClicked,

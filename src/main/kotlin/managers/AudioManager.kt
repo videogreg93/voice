@@ -1,5 +1,8 @@
 package managers
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import runCommand
 import java.io.File
 
@@ -10,11 +13,7 @@ class AudioManager {
 
     fun getInputDevices(): List<InputDevice> {
         return "./getDeviceIds.exe".runCommand(File("./"))?.let {
-            it.lines().filter { it.isNotBlank() }.map {
-                // TODO modify the c++ code so that the seperator isn't just a comma
-                val split = it.split(",")
-                InputDevice(split.first(), split.last())
-            }
+            Json.decodeFromString(it)
         } ?: emptyList()
     }
 
@@ -22,5 +21,6 @@ class AudioManager {
         return getInputDevices().first()
     }
 
+    @Serializable
     data class InputDevice(val name: String, val id: String)
 }
