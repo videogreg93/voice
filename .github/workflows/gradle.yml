@@ -43,3 +43,13 @@ jobs:
         prerelease: false
         files: |
           build/compose/binaries/main/msi/*.msi
+    - name: Send mail about new Release
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        subject: New Voice Release
+        to: gregory.fournier@protonmail.com
+        from: Gregory Fournier
+        reply_to: luke@example.com
+        body: "New version of Voice available. See here for more information: https://github.com/videogreg93/voice/releases/tag/Latest"
