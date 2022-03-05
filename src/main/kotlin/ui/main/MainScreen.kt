@@ -73,7 +73,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
             },
             topBar = {
                 TopAppBar(
-                    contentColor = MaterialTheme.colors.onPrimary
+                    contentColor = MaterialTheme.colors.onPrimary,
                 ) {
                     TextButton(onClick = {
                         showAboutDialog = true
@@ -140,6 +140,10 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                     }
                     Spacer(Modifier.width(32.dp))
                     Box {
+                        Text(
+                            "Input Device",
+                            color = MaterialTheme.colors.onPrimary
+                        )
                         Button(
                             modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
                             onClick = viewModel.state.onInputDeviceButtonClicked,
@@ -149,7 +153,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                             )
                         ) {
                             Text(
-                                viewModel.state.inputDevices[viewModel.state.selectedDeviceInputDropdownIndex].name,
+                                viewModel.state.inputDevices.getOrNull(viewModel.state.selectedDeviceInputDropdownIndex)?.name.orEmpty(),
                                 color = MaterialTheme.colors.onPrimary
                             )
                         }

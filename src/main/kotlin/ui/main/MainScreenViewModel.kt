@@ -147,7 +147,7 @@ class MainScreenViewModel(
         speechManager.setInputDevice(state.inputDevices[index])
         setupCallbacks()
         state = state.copy(
-            selectedDropdownIndex = index,
+            selectedDeviceInputDropdownIndex = index,
             isInputDevicesDropdownExpanded = false,
         )
     }

@@ -13,11 +13,10 @@ class SpeechManagerImpl(private val audioManager: AudioManager) : SpeechManager 
     private val subscriptionKey = SPEECH_API_KEY
     private val regionCode = "eastus"
 
-    private val recognizer: SpeechRecognizer
+    private var recognizer: SpeechRecognizer
     private var currentInputDevice = audioManager.getDefaultInputDevice()
 
     init {
-        println(currentInputDevice.name)
         println("Init SpeechManager")
         recognizer = setupSpeech()
     }
@@ -78,7 +77,7 @@ class SpeechManagerImpl(private val audioManager: AudioManager) : SpeechManager 
 
     override fun setInputDevice(device: AudioManager.InputDevice) {
         currentInputDevice = device
-        setupSpeech()
+        recognizer = setupSpeech()
     }
 
     companion object {
