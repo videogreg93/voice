@@ -23,7 +23,7 @@ import kotlin.io.path.exists
 fun main() = application {
     if (!FileManager.mainFolder.exists()) Files.createDirectories(FileManager.mainFolder)
     // Copy all files from resource folder to the AppRoaming folder
-    val filenames = listOf("BEM.json", "protocolOperatoire.json")
+    val filenames = listOf("BEM.json", "protocolOperatoire.json", "getDeviceIds.exe")
     filenames.forEach { filename ->
         getResource(filename)?.let { inputStream ->
             val newFile = Paths.get(FileManager.mainFolder.absolutePathString(), "/$filename").toFile()

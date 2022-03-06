@@ -12,7 +12,7 @@ import java.io.File
 class AudioManager {
 
     fun getInputDevices(): List<InputDevice> {
-        return "./getDeviceIds.exe".runCommand(File("./"))?.let {
+        return "${FileManager.mainFolder.toFile()}/getDeviceIds.exe".runCommand(FileManager.mainFolder.toFile())?.let {
             Json.decodeFromString(it)
         } ?: emptyList()
     }
