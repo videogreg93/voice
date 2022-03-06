@@ -139,26 +139,28 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                         )
                     }
                     Spacer(Modifier.width(32.dp))
-                    Box {
-                        Button(
-                            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
-                            onClick = viewModel.state.onInputDeviceButtonClicked,
-                            enabled = !viewModel.state.isRecording,
-                            colors = ButtonDefaults.buttonColors(
-                                disabledBackgroundColor = Color(0xFF00008b) // TODO better themeing
-                            )
-                        ) {
-                            Text(
-                                viewModel.state.inputDevices.getOrNull(viewModel.state.selectedDeviceInputDropdownIndex)?.name.orEmpty(),
-                                color = MaterialTheme.colors.onPrimary
+                    if (viewModel.state.inputDevices.isNotEmpty()) {
+                        Box {
+                            Button(
+                                modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
+                                onClick = viewModel.state.onInputDeviceButtonClicked,
+                                enabled = !viewModel.state.isRecording,
+                                colors = ButtonDefaults.buttonColors(
+                                    disabledBackgroundColor = Color(0xFF00008b) // TODO better themeing
+                                )
+                            ) {
+                                Text(
+                                    viewModel.state.inputDevices.getOrNull(viewModel.state.selectedDeviceInputDropdownIndex)?.name.orEmpty(),
+                                    color = MaterialTheme.colors.onPrimary
+                                )
+                            }
+                            InputDevicesDropDown(
+                                expanded = viewModel.state.isInputDevicesDropdownExpanded,
+                                onDismissRequest = viewModel.state.onInputDeviceDismissRequest,
+                                items = viewModel.state.inputDevices,
+                                onItemClick = viewModel.state.onInputDeviceItemClicked,
                             )
                         }
-                        InputDevicesDropDown(
-                            expanded = viewModel.state.isInputDevicesDropdownExpanded,
-                            onDismissRequest = viewModel.state.onInputDeviceDismissRequest,
-                            items = viewModel.state.inputDevices,
-                            onItemClick = viewModel.state.onInputDeviceItemClicked,
-                        )
                     }
 
                     if (showExportDialog) {

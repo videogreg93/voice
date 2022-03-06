@@ -17,8 +17,8 @@ class AudioManager {
         } ?: emptyList()
     }
 
-    fun getDefaultInputDevice(): InputDevice {
-        return getInputDevices().first()
+    fun getDefaultInputDevice(): InputDevice? {
+        return getInputDevices().firstOrNull()
     }
 
     @Serializable

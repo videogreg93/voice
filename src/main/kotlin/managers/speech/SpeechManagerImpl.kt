@@ -28,7 +28,9 @@ class SpeechManagerImpl(private val audioManager: AudioManager) : SpeechManager 
         )
         speechConfig.enableDictation()
         speechConfig.speechRecognitionLanguage = "fr-CA"
-        val audioConfig = AudioConfig.fromMicrophoneInput(currentInputDevice.id)
+        val audioConfig = currentInputDevice?.let {
+            AudioConfig.fromMicrophoneInput(it.id)
+        } ?: AudioConfig.fromDefaultMicrophoneInput()
         val recognizer = SpeechRecognizer(speechConfig, audioConfig)
         recognizer.canceled.addEventListener { s, e ->
             println("CANCELED: Reason=" + e.getReason());
