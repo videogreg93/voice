@@ -12,9 +12,19 @@ import java.io.File
 class AudioManager {
 
     fun getInputDevices(): List<InputDevice> {
-        return "${FileManager.mainFolder.toFile()}/getDeviceIds.exe".runCommand(FileManager.mainFolder.toFile())?.let {
-            Json.decodeFromString(it)
-        } ?: emptyList()
+        return try {
+            "${FileManager.mainFolder.toFile()}/getDeviceIds.exe".runCommand(FileManager.mainFolder.toFile())?.let {
+                return if (it.isBlank()) {
+                    emptyList()
+                } else {
+                    Json.decodeFromString(it)
+                }
+            } ?: emptyList()
+        } catch (e: Exception) {
+            println("Could not get device ids, will use default input device.")
+            e.printStackTrace()
+            emptyList()
+        }
     }
 
     fun getDefaultInputDevice(): InputDevice? {
