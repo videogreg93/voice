@@ -15,7 +15,7 @@ import i18n.Messages
 import i18n.text
 import managers.AudioManager
 import managers.Prefs
-import managers.TextBoy
+import managers.text.TextBoy
 import managers.UserManager
 import models.Doctor
 import java.awt.Cursor

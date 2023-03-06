@@ -1,4 +1,4 @@
-package managers
+package managers.text
 
 import i18n.Messages
 import java.text.MessageFormat

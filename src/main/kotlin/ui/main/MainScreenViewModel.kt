@@ -5,9 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import i18n.Messages
 import managers.AudioManager
-import managers.speech.SpeechManagerImpl
 import managers.TemplateManager
-import managers.TextBoy
+import managers.text.TextBoy
 import managers.speech.SpeechManager
 import models.Doctor
 import models.VoiceField

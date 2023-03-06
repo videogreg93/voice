@@ -33,7 +33,7 @@ import com.hera.voice.BuildConfig
 import i18n.Messages
 import managers.AudioManager
 import managers.FileManager
-import managers.TextBoy
+import managers.text.TextBoy
 import models.VoiceField
 import org.apache.commons.io.FilenameUtils
 import replaceIdsInDocument
