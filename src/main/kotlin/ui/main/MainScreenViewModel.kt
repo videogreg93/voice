@@ -19,7 +19,7 @@ import kotlin.collections.ArrayList
 
 class MainScreenViewModel(
     user: Doctor,
-    private val templateManager: TemplateManager,
+    private val templateManager: TemplateManager, // TODO do we need this? Maybe if we want to load other templates
     private val speechManager: SpeechManager,
     initialTemplate: Template,
 ) : ViewModel<MainScreenViewModel.MainScreenState>() {
@@ -29,7 +29,6 @@ class MainScreenViewModel(
     private val selectedVoiceField: VoiceField
         get() = state.inputs[state.selectedInputIndex]
 
-    // TODO avoid loading the template twice
     override var state: MainScreenState by mutableStateOf(
         MainScreenState(
             template.templateFile,
@@ -40,9 +39,6 @@ class MainScreenViewModel(
             false,
             TextBoy.getMessage(Messages.record),
             0,
-            0, // TODO doesn't reflect actual loaded template
-            false,
-            templateManager.getTemplateNames(),
             "",
             inputDevices = speechManager.getSupportedInputDevices(),
             false,
@@ -50,9 +46,6 @@ class MainScreenViewModel(
             ::onInputFocusChanged,
             ::onSpeechRecognizing,
             ::onSpeechRecognized,
-            ::onDropdownItemClicked,
-            ::onDropdownButtonClicked,
-            ::onDropdownDismissRequest,
             ::onInputDeviceDropdownItemClicked,
             ::onInputDeviceButtonClicked,
             ::onInputDeviceDismissRequest,
@@ -115,31 +108,6 @@ class MainScreenViewModel(
         state = state.copy(
             inputs = newList,
             startingText = state.inputs[state.selectedInputIndex].text
-        )
-    }
-
-    private fun onDropdownItemClicked(index: Int) {
-        val newTemplate = templateManager.loadTemplate(state.templateNames[index])
-        val newInputs = newTemplate.inputs
-        state = state.copy(
-            selectedDropdownIndex = index,
-            inputs = templateManager.loadTemplate(state.templateNames[index]).inputs,
-            isDropdownExpanded = false,
-            startingText = "",
-            selectedInputIndex = min(state.selectedInputIndex, newInputs.size),
-            templateFile = newTemplate.templateFile
-        )
-    }
-
-    private fun onDropdownButtonClicked() {
-        state = state.copy(
-            isDropdownExpanded = true
-        )
-    }
-
-    private fun onDropdownDismissRequest() {
-        state = state.copy(
-            isDropdownExpanded = false,
         )
     }
 
@@ -208,9 +176,6 @@ class MainScreenViewModel(
         val isRecording: Boolean,
         val recordButtonText: String,
         val selectedInputIndex: Int,
-        val selectedDropdownIndex: Int,
-        val isDropdownExpanded: Boolean,
-        val templateNames: List<String>,
         val addTextFieldInput: String,
         val inputDevices: List<AudioManager.InputDevice>,
         val isInputDevicesDropdownExpanded: Boolean,
@@ -218,9 +183,6 @@ class MainScreenViewModel(
         val onInputFocusChanged: (Int) -> Unit,
         val onSpeechRecognizing: (String) -> Unit,
         val onSpeechRecognized: (String) -> Unit,
-        val onDropdownItemClicked: (Int) -> Unit,
-        val onDropdownButtonClicked: () -> Unit,
-        val onDropdownDismissRequest: () -> Unit,
         val onInputDeviceItemClicked: (Int) -> Unit,
         val onInputDeviceButtonClicked: () -> Unit,
         val onInputDeviceDismissRequest: () -> Unit,

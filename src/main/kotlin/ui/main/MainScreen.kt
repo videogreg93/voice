@@ -117,28 +117,6 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                         }
                     }
                     Spacer(Modifier.width(32.dp))
-                    Box {
-                        Button(
-                            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
-                            onClick = viewModel.state.onDropdownButtonClicked,
-                            enabled = !viewModel.state.isRecording,
-                            colors = ButtonDefaults.buttonColors(
-                                disabledBackgroundColor = Color(0xFF00008b) // TODO better themeing
-                            )
-                        ) {
-                            Text(
-                                viewModel.state.templateNames[viewModel.state.selectedDropdownIndex],
-                                color = MaterialTheme.colors.onPrimary
-                            )
-                        }
-                        TemplatesDropDown(
-                            expanded = viewModel.state.isDropdownExpanded,
-                            onDismissRequest = viewModel.state.onDropdownDismissRequest,
-                            viewModel.state.templateNames,
-                            onItemClick = viewModel.state.onDropdownItemClicked
-                        )
-                    }
-                    Spacer(Modifier.width(32.dp))
                     if (viewModel.state.inputDevices.isNotEmpty()) {
                         Box {
                             Button(
@@ -412,29 +390,6 @@ fun AboutDialog(onDismiss: () -> Unit, onClickUrl: (String) -> Unit) {
         },
         onDismissRequest = {},
     )
-}
-
-@Composable
-fun TemplatesDropDown(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    items: List<String>,
-    onItemClick: (Int) -> Unit,
-) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-    ) {
-        items.forEachIndexed { index, item ->
-            DropdownMenuItem(
-                onClick = {
-                    onItemClick(index)
-                }
-            ) {
-                Text(item)
-            }
-        }
-    }
 }
 
 @Composable
