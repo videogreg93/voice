@@ -12,6 +12,7 @@ import models.Doctor
 import models.Template
 import models.VoiceField
 import ui.base.ViewModel
+import java.io.File
 import java.lang.Integer.min
 import java.util.*
 import kotlin.collections.ArrayList
@@ -229,14 +230,14 @@ class MainScreenViewModel(
     )
 
     companion object {
-
         fun create(
             user: Doctor,
             templateManager: TemplateManager,
             speechManager: SpeechManager,
+            initialTemplateFile: File,
         ): MainScreenViewModel {
             if (instance == null) {
-                instance = MainScreenViewModel(user, templateManager, speechManager, templateManager.loadDefaultTemplate())
+                instance = MainScreenViewModel(user, templateManager, speechManager, templateManager.loadTemplate(initialTemplateFile))
             }
             return instance!!
         }

@@ -2,6 +2,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.AwtWindow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -11,12 +12,14 @@ import managers.FileManager
 import managers.TemplateManager
 import managers.UserManager
 import managers.speech.SpeechManagerImpl
-import models.Doctor
 import org.apache.commons.io.FileUtils
 import ui.SignInScreen
 import ui.base.ScreenNavigation
 import ui.main.MainScreen
 import ui.main.MainScreenViewModel
+import java.awt.FileDialog
+import java.awt.Frame
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.io.path.absolutePathString
@@ -48,24 +51,67 @@ fun main() = application {
                 title = Messages.signIn.text
             ) {
                 SignInScreen(
-                    onSignInSuccessful = {
-                        currentScreen = ScreenNavigation.Main(
-                            MainScreenViewModel.create(
-                                it,
-                                TemplateManager(),
-                                SpeechManagerImpl.instance
-                            )
-                        )
+                    onSignInSuccessful = { doctor ->
+                        currentScreen = ScreenNavigation.FilePicker { file ->
+                            currentScreen = if (file != null) {
+                                ScreenNavigation.Main(
+                                    MainScreenViewModel.create(
+                                        doctor,
+                                        TemplateManager(),
+                                        SpeechManagerImpl.instance,
+                                        file
+                                    )
+                                )
+                            } else {
+                                ScreenNavigation.SignIn
+                            }
+                        }
                     },
                     userManager = userManager,
                 ).setup()
             }
         }
+
         is ScreenNavigation.Main -> {
             MainWindow(screen.viewModel) { exitApplication() }
         }
+
+        is ScreenNavigation.FilePicker -> {
+            FileDialog(
+                onCloseRequest = screen.onFileChosen
+            )
+        }
     }
 }
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun FileDialog(
+    parent: Frame? = null,
+    onCloseRequest: (result: File?) -> Unit
+) = AwtWindow(
+    create = {
+        object : FileDialog(parent, "Choose a file", LOAD) {
+            init {
+                directory = FileManager.mainFolder.absolutePathString()
+                setFilenameFilter { dir, name ->
+                    name.contains(".json")
+                }
+            }
+
+            override fun setVisible(value: Boolean) {
+                super.setVisible(value)
+                if (value) {
+                    val completeFile = file?.let {
+                        Paths.get(directory, "/$it").toFile()
+                    }
+                    onCloseRequest(file?.let { completeFile })
+                }
+            }
+        }
+    },
+    dispose = FileDialog::dispose
+)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

@@ -6,8 +6,8 @@ import java.io.FileInputStream
 import kotlin.text.StringBuilder
 
 plugins {
-    kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0"
+    kotlin("jvm") version "1.8.0"
+    id("org.jetbrains.compose") version "1.3.0"
     id("com.github.gmazzo.buildconfig") version "3.0.3"
     kotlin("plugin.serialization") version "1.6.10"
 }

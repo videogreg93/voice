@@ -34,7 +34,6 @@ class SignInScreen(
 
     @Composable
     fun setup() {
-
         val viewModel by remember { mutableStateOf(SignInViewModel(userManager)) }
         MaterialTheme(
             colors = MaterialTheme.colors.copy(

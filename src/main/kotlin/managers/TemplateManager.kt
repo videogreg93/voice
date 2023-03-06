@@ -30,6 +30,14 @@ class TemplateManager {
         return json.decodeFromString(fileText)
     }
 
+    /**
+     * TODO reconcile this method and the other loadTemplate method
+     */
+    fun loadTemplate(file: File): Template {
+        val fileText = file.readText()
+        return json.decodeFromString(fileText)
+    }
+
     fun saveTemplate(name: String, template: Template) {
         val templateJson = json.encodeToString(template)
         val file = File(FileManager.mainFolder.toFile(), "$name$FILE_EXTENSION")

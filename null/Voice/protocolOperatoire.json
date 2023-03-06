@@ -55,5 +55,6 @@
             "label": "Département",
             "id": "{id_nom_departement}"
         }
-    ]
+    ],
+    "name": "Protocole Opératoire"
 }
