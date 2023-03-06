@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
 import i18n.Messages
@@ -15,7 +18,9 @@ import managers.Prefs
 import managers.TextBoy
 import managers.UserManager
 import models.Doctor
+import java.awt.Cursor
 
+@ExperimentalComposeUiApi
 class SignInScreen(
     private val onSignInSuccessful: (Doctor) -> Unit,
     private val userManager: UserManager,
@@ -100,11 +105,13 @@ class SignInScreen(
         )
     }
 
+    @ExperimentalComposeUiApi
     @Composable
     private fun SignInButton(validation: () -> Boolean, onClick: () -> Unit) {
         Button(
             onClick = onClick,
             enabled = validation(),
+            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR)))
         ) {
             Text(Messages.signIn.text)
         }

@@ -1,0 +1,59 @@
+{
+    "templateFile": "protocolOperatoireTemplate.docx",
+    "inputs": [
+        {
+            "label": "Date de l'Opération",
+            "id": "{id_date}"
+        },
+        {
+            "label": "Nom du patient",
+            "id": "{id_nom_patient}",
+            "isFileName": true
+        },
+        {
+            "label": "Numéro de dossier",
+            "id": "{id_number}"
+        },
+        {
+            "label": "NAM",
+            "id": "{id_nam}"
+        },
+        {
+            "label": "DDN",
+            "id": "{id_ddn}"
+        },
+        {
+            "label": "Âge",
+            "id": "{id_age}"
+        },
+        {
+            "label": "No Visite",
+            "id": "{id_visite}"
+        },
+        {
+            "label": "Diagnostic Préopératoire",
+            "size": "MEDIUM",
+            "id": "{id_diagnostic_preoperatoire}"
+        },
+        {
+            "label": "Diagnostic Postopératoire",
+            "size": "MEDIUM",
+            "id": "{id_diagnostic_postoperatoire}"
+        },
+        {
+            "label": "Protocole Opératoire",
+            "size": "LARGE",
+            "id": "{id_protocole_operatoire}"
+        },
+        {
+            "label": "Nom du médecin",
+            "id": "{id_nom_medecin}",
+            "isUsername": true,
+            "text": "Test User"
+        },
+        {
+            "label": "Département",
+            "id": "{id_nom_departement}"
+        }
+    ]
+}

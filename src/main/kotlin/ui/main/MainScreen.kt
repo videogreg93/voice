@@ -284,7 +284,10 @@ private fun TextFields(
 
 @Composable
 fun recordButton(text: String, onTap: () -> Unit) {
-    Button(onClick = onTap) {
+    Button(
+        onClick = onTap,
+        modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
+    ) {
         Image(
             painterResource("microphone.png"),
             "",
@@ -297,7 +300,10 @@ fun recordButton(text: String, onTap: () -> Unit) {
 
 @Composable
 fun exportButton(onTap: () -> Unit) {
-    Button(onClick = onTap) {
+    Button(
+        onClick = onTap,
+        modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR)))
+    ) {
         Image(
             painterResource("export.png"),
             "",

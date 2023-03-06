@@ -4,9 +4,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import i18n.Messages
 import managers.FileManager
 import managers.speech.SpeechManagerImpl
 import managers.TemplateManager
+import managers.TextBoy
 import managers.UserManager
 import models.Doctor
 import org.apache.commons.io.FileUtils
@@ -64,7 +66,11 @@ fun main() = application {
 private fun MainWindow(user: Doctor, onExit: () -> Unit) {
     Window(
         onCloseRequest = onExit,
-        title = "Voice"
+        title = TextBoy.getMessage(Messages.appName),
+        state = rememberWindowState(
+            width = 960.dp,
+            height = 800.dp,
+        )
     ) {
         val viewModel by remember { mutableStateOf(MainScreenViewModel.create(user, TemplateManager(), SpeechManagerImpl.instance)) }
         MainScreen(viewModel)
