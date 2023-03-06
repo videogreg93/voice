@@ -6,4 +6,5 @@ import kotlinx.serialization.Serializable
 data class Template(
     val inputs: List<VoiceField>,
     val templateFile: String,
+    val name: String,
 )

@@ -9,6 +9,7 @@ import managers.TemplateManager
 import managers.text.TextBoy
 import managers.speech.SpeechManager
 import models.Doctor
+import models.Template
 import models.VoiceField
 import ui.base.ViewModel
 import java.lang.Integer.min
@@ -19,9 +20,10 @@ class MainScreenViewModel(
     user: Doctor,
     private val templateManager: TemplateManager,
     private val speechManager: SpeechManager,
+    initialTemplate: Template,
 ) : ViewModel<MainScreenViewModel.MainScreenState>() {
 
-    private val template = templateManager.loadDefaultTemplate()
+    private val template = initialTemplate
 
     private val selectedVoiceField: VoiceField
         get() = state.inputs[state.selectedInputIndex]
@@ -32,12 +34,12 @@ class MainScreenViewModel(
             template.templateFile,
             user,
             "",
-            templateManager.loadDefaultTemplate().inputs,
+            initialTemplate.inputs,
             ::onTextChange,
             false,
             TextBoy.getMessage(Messages.record),
             0,
-            0,
+            0, // TODO doesn't reflect actual loaded template
             false,
             templateManager.getTemplateNames(),
             "",
@@ -234,7 +236,7 @@ class MainScreenViewModel(
             speechManager: SpeechManager,
         ): MainScreenViewModel {
             if (instance == null) {
-                instance = MainScreenViewModel(user, templateManager, speechManager)
+                instance = MainScreenViewModel(user, templateManager, speechManager, templateManager.loadDefaultTemplate())
             }
             return instance!!
         }

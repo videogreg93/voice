@@ -12,7 +12,7 @@ import java.io.File
  */
 class TemplateManager {
 
-    fun loadDefaultTemplate() = loadTemplate(DEFAULT_FILENAME)
+    fun loadDefaultTemplate() = loadTemplate(BEM_FILENAME)
 
     private val json by lazy {
         Json {

@@ -102,5 +102,6 @@
             "id": "{id_abbreviation}"
         }
     ],
-    "templateFile": "BEMTemplate.docx"
+    "templateFile": "BEMTemplate.docx",
+    "name": "BEM"
 }

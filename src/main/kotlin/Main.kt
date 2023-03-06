@@ -49,21 +49,27 @@ fun main() = application {
             ) {
                 SignInScreen(
                     onSignInSuccessful = {
-                        currentScreen = ScreenNavigation.Main(it)
+                        currentScreen = ScreenNavigation.Main(
+                            MainScreenViewModel.create(
+                                it,
+                                TemplateManager(),
+                                SpeechManagerImpl.instance
+                            )
+                        )
                     },
                     userManager = userManager,
                 ).setup()
             }
         }
         is ScreenNavigation.Main -> {
-            MainWindow(screen.user) { exitApplication() }
+            MainWindow(screen.viewModel) { exitApplication() }
         }
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun MainWindow(user: Doctor, onExit: () -> Unit) {
+private fun MainWindow(mainScreenViewModel: MainScreenViewModel, onExit: () -> Unit) {
     Window(
         onCloseRequest = onExit,
         title = Messages.appName.text,
@@ -73,13 +79,7 @@ private fun MainWindow(user: Doctor, onExit: () -> Unit) {
         )
     ) {
         val viewModel by remember {
-            mutableStateOf(
-                MainScreenViewModel.create(
-                    user,
-                    TemplateManager(),
-                    SpeechManagerImpl.instance
-                )
-            )
+            mutableStateOf(mainScreenViewModel)
         }
         MainScreen(viewModel)
     }
