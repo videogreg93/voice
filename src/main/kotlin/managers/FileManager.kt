@@ -10,4 +10,6 @@ object FileManager {
     val template by lazy { Paths.get(mainFolder.absolutePathString(), "/protocolOperatoireTemplate.docx").toFile() }
     val BEMtemplate by lazy { Paths.get(mainFolder.absolutePathString(), "/BEMTemplate.docx").toFile() }
     val myDocuments by lazy { FileSystemView.getFileSystemView().defaultDirectory.path }
+
+    const val echoFileExtension = ".echo"
 }

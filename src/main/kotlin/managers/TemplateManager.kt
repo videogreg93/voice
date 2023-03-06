@@ -12,8 +12,6 @@ import java.io.File
  */
 class TemplateManager {
 
-    fun loadDefaultTemplate() = loadTemplate(BEM_FILENAME)
-
     private val json by lazy {
         Json {
             ignoreUnknownKeys = true
@@ -21,7 +19,7 @@ class TemplateManager {
     }
 
     fun getTemplateNames(): List<String> {
-        return listOf(DEFAULT_FILENAME, BEM_FILENAME)
+        return FileManager.mainFolder.toFile().list()?.toList() ?: emptyList()
     }
 
     fun loadTemplate(name: String): Template {
@@ -46,8 +44,6 @@ class TemplateManager {
     }
 
     companion object {
-        private const val FILE_EXTENSION = ".json"
-        private const val DEFAULT_FILENAME = "protocolOperatoire"
-        private const val BEM_FILENAME = "BEM"
+        private const val FILE_EXTENSION = FileManager.echoFileExtension
     }
 }

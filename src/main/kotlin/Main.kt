@@ -95,7 +95,7 @@ private fun FileDialog(
             init {
                 directory = FileManager.mainFolder.absolutePathString()
                 setFilenameFilter { dir, name ->
-                    name.contains(".json")
+                    name.contains(FileManager.echoFileExtension)
                 }
             }
 
