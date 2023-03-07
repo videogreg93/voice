@@ -7,16 +7,14 @@ import androidx.compose.runtime.setValue
 import i18n.Messages
 import managers.AudioManager
 import managers.TemplateManager
-import managers.text.TextBoy
 import managers.speech.SpeechManager
+import managers.text.TextBoy
 import models.Doctor
 import models.Template
 import models.VoiceField
 import ui.base.ViewModel
 import java.io.File
-import java.lang.Integer.min
 import java.util.*
-import kotlin.collections.ArrayList
 
 class MainScreenViewModel(
     user: Doctor,
@@ -72,7 +70,7 @@ class MainScreenViewModel(
     }
 
     private fun onLoadNewTemplate() {
-        Navigator.loadTemplate(state.currentUser, {})
+        Navigator.loadTemplate(state.currentUser, Navigator.onExit)
     }
 
     private fun setupCallbacks() {
@@ -205,9 +203,13 @@ class MainScreenViewModel(
             speechManager: SpeechManager,
             initialTemplateFile: File,
         ): MainScreenViewModel {
-            if (instance == null) {
-                instance = MainScreenViewModel(user, templateManager, speechManager, templateManager.loadTemplate(initialTemplateFile))
-            }
+            instance = MainScreenViewModel(
+                user,
+                templateManager,
+                speechManager,
+                templateManager.loadTemplate(initialTemplateFile)
+            )
+
             return instance!!
         }
 

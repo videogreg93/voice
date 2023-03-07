@@ -24,11 +24,12 @@ import kotlin.io.path.exists
 @OptIn(ExperimentalComposeUiApi::class)
 object Navigator {
     var screen: ScreenNavigation by mutableStateOf(ScreenNavigation.SignIn)
+    lateinit var onExit: () -> Unit
 
     fun loadTemplate(doctor: Doctor, onExit: () -> Unit) {
         screen = ScreenNavigation.FilePicker { file ->
-            screen = if (file != null) {
-                ScreenNavigation.Main(
+            if (file != null) {
+                screen = ScreenNavigation.Main(
                     MainScreenViewModel.create(
                         doctor,
                         TemplateManager(),
@@ -47,6 +48,7 @@ object Navigator {
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 fun main() = application {
+    Navigator.onExit = ::exitApplication
     if (!FileManager.mainFolder.exists()) Files.createDirectories(FileManager.mainFolder)
     // Copy all files from resource folder to the AppRoaming folder
     val filenames = listOf("BEM.json", "protocolOperatoire.json", "getDeviceIds.exe")
