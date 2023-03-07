@@ -22,6 +22,8 @@ import managers.UserManager
 import managers.text.TextBoy
 import models.Doctor
 import java.awt.Cursor
+import java.awt.Desktop
+import java.net.URI
 
 @ExperimentalComposeUiApi
 class SignInScreen(
@@ -39,10 +41,10 @@ class SignInScreen(
     @Composable
     fun setup() {
         var showUpdateDialog by remember { mutableStateOf(true) }
-        val version = runBlocking {
+        val latestRelease = runBlocking {
             UpdateClient.getLatestReleaseVersion()
         }
-        if (version != BuildConfig.APP_VERSION && showUpdateDialog) {
+        if (latestRelease?.version != null && latestRelease.version != BuildConfig.APP_VERSION && showUpdateDialog) {
             AlertDialog(
                 title = {
                     Text("New Version Available")
@@ -50,7 +52,7 @@ class SignInScreen(
                 text = {
                     Column(modifier = Modifier.padding(16.dp).width(254.dp)) {
                         Text("Your Version  : ${BuildConfig.APP_VERSION}")
-                        Text("Latest Version: ${version}")
+                        Text("Latest Version: ${latestRelease.version}")
                     }
                 },
                 buttons = {
@@ -61,6 +63,11 @@ class SignInScreen(
                                 backgroundColor = MaterialTheme.colors.primary
                             ),
                             onClick = {
+                                if (Desktop.isDesktopSupported() && Desktop.getDesktop()
+                                        .isSupported(Desktop.Action.BROWSE)
+                                ) {
+                                    Desktop.getDesktop().browse(URI(latestRelease.browser_download_url))
+                                }
                                 showUpdateDialog = false
                             }
                         ) {

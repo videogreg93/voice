@@ -18,10 +18,8 @@ object UpdateClient {
         }
     }
 
-    suspend fun getLatestReleaseVersion(): String? {
+    suspend fun getLatestReleaseVersion(): GithubRelease.Asset? {
         val release: GithubRelease = httpClient.get("https://api.github.com/repos/videogreg93/voice/releases/latest").body()
-        return release.assets.firstOrNull()?.let {
-            it.name.split("voice-").getOrNull(1)?.replace(".msi", "")
-        }
+        return release.assets.firstOrNull()
     }
 }
