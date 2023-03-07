@@ -1,5 +1,6 @@
 package ui.main
 
+import Navigator
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,6 +53,7 @@ class MainScreenViewModel(
             ::onRecordButtonClicked,
             ::onAddTextFieldClicked,
             ::onAddTextFieldChanged,
+            ::onLoadNewTemplate,
         )
     )
 
@@ -67,6 +69,10 @@ class MainScreenViewModel(
         }
 
         setupCallbacks()
+    }
+
+    private fun onLoadNewTemplate() {
+        Navigator.loadTemplate(state.currentUser, {})
     }
 
     private fun setupCallbacks() {
@@ -189,6 +195,7 @@ class MainScreenViewModel(
         val onRecordButtonClicked: () -> Unit,
         val onAddTextFieldClicked: () -> Unit,
         val onAddTextFieldChanged: (String) -> Unit,
+        val onLoadNewTemplate: () -> Unit
     )
 
     companion object {

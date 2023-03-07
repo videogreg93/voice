@@ -140,6 +140,14 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                             )
                         }
                     }
+                    TextButton(onClick = viewModel.state.onLoadNewTemplate) {
+                        Text(
+                            text = "Load...",
+                            modifier = Modifier.padding(start = 12.dp, end = 24.dp)
+                                .pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
+                            color = MaterialTheme.colors.onPrimary
+                        )
+                    }
 
                     if (showExportDialog) {
                         AlertDialog(
