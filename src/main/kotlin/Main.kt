@@ -60,7 +60,8 @@ fun main() = application {
                                         TemplateManager(),
                                         SpeechManagerImpl.instance,
                                         file
-                                    )
+                                    ),
+                                    ::exitApplication,
                                 )
                             } else {
                                 ScreenNavigation.SignIn
@@ -71,63 +72,7 @@ fun main() = application {
                 ).setup()
             }
         }
-
-        is ScreenNavigation.Main -> {
-            MainWindow(screen.viewModel) { exitApplication() }
-        }
-
-        is ScreenNavigation.FilePicker -> {
-            FileDialog(
-                onCloseRequest = screen.onFileChosen
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun FileDialog(
-    parent: Frame? = null,
-    onCloseRequest: (result: File?) -> Unit
-) = AwtWindow(
-    create = {
-        object : FileDialog(parent, "Choose a file", LOAD) {
-            init {
-                directory = FileManager.mainFolder.absolutePathString()
-                setFilenameFilter { dir, name ->
-                    name.contains(FileManager.echoFileExtension)
-                }
-            }
-
-            override fun setVisible(value: Boolean) {
-                super.setVisible(value)
-                if (value) {
-                    val completeFile = file?.let {
-                        Paths.get(directory, "/$it").toFile()
-                    }
-                    onCloseRequest(file?.let { completeFile })
-                }
-            }
-        }
-    },
-    dispose = FileDialog::dispose
-)
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun MainWindow(mainScreenViewModel: MainScreenViewModel, onExit: () -> Unit) {
-    Window(
-        onCloseRequest = onExit,
-        title = Messages.appName.text,
-        state = rememberWindowState(
-            width = 960.dp,
-            height = 800.dp,
-        )
-    ) {
-        val viewModel by remember {
-            mutableStateOf(mainScreenViewModel)
-        }
-        MainScreen(viewModel)
+        else -> screen.render()
     }
 }
 
