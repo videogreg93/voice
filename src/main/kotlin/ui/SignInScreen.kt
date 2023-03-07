@@ -10,13 +10,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
+import api.UpdateClient
+import com.hera.voice.BuildConfig
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
 import i18n.Messages
 import i18n.text
+import kotlinx.coroutines.runBlocking
 import managers.AudioManager
 import managers.Prefs
-import managers.text.TextBoy
 import managers.UserManager
+import managers.text.TextBoy
 import models.Doctor
 import java.awt.Cursor
 
@@ -32,8 +35,54 @@ class SignInScreen(
         println(AudioConfig.fromMicrophoneInput(""))
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun setup() {
+        var showUpdateDialog by remember { mutableStateOf(true) }
+        val version = runBlocking {
+            UpdateClient.getLatestReleaseVersion()
+        }
+        if (version != BuildConfig.APP_VERSION && showUpdateDialog) {
+            AlertDialog(
+                title = {
+                    Text("New Version Available")
+                },
+                text = {
+                    Column(modifier = Modifier.padding(16.dp).width(254.dp)) {
+                        Text("Your Version  : ${BuildConfig.APP_VERSION}")
+                        Text("Latest Version: ${version}")
+                    }
+                },
+                buttons = {
+                    Row(modifier = Modifier.padding(horizontal = 32.dp, vertical = 4.dp)) {
+                        Button(
+                            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = MaterialTheme.colors.primary
+                            ),
+                            onClick = {
+                                showUpdateDialog = false
+                            }
+                        ) {
+                            Text("Update")
+                        }
+                        Spacer(Modifier.width(32.dp))
+                        Button(
+                            modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = MaterialTheme.colors.onPrimary
+                            ),
+                            onClick = {
+                                showUpdateDialog = false
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                },
+                onDismissRequest = {},
+            )
+        }
         val viewModel by remember { mutableStateOf(SignInViewModel(userManager)) }
         MaterialTheme(
             colors = MaterialTheme.colors.copy(

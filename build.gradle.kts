@@ -5,6 +5,8 @@ import java.util.Properties
 import java.io.FileInputStream
 import kotlin.text.StringBuilder
 
+val ktorVersion = "2.2.1"
+
 plugins {
     kotlin("jvm") version "1.8.0"
     id("org.jetbrains.compose") version "1.3.0"
@@ -42,6 +44,10 @@ dependencies {
         version = "5.2.0"
     )
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 }
 
 tasks.withType<KotlinCompile>() {
