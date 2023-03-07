@@ -2,6 +2,7 @@
 
 package ui.main
 
+import Navigator
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -22,15 +23,18 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hera.voice.BuildConfig
 import i18n.Messages
+import i18n.text
 import managers.AudioManager
 import managers.FileManager
 import managers.text.TextBoy
@@ -55,7 +59,6 @@ fun MainScreen(viewModel: MainScreenViewModel) {
 
     var showExportDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
-
     MaterialTheme(
         colors = MaterialTheme.colors.copy(
             primary = Color.Blue,
@@ -142,7 +145,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                     }
                     TextButton(onClick = viewModel.state.onLoadNewTemplate) {
                         Text(
-                            text = "Load...",
+                            text = Messages.Menu_Load.text,
                             modifier = Modifier.padding(start = 12.dp, end = 24.dp)
                                 .pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
                             color = MaterialTheme.colors.onPrimary

@@ -11,7 +11,6 @@ import managers.FileManager
 import managers.TemplateManager
 import managers.UserManager
 import managers.speech.SpeechManagerImpl
-import models.Doctor
 import org.apache.commons.io.FileUtils
 import ui.SignInScreen
 import ui.base.ScreenNavigation
@@ -21,27 +20,22 @@ import java.nio.file.Paths
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.exists
 
-@OptIn(ExperimentalComposeUiApi::class)
 object Navigator {
     var screen: ScreenNavigation by mutableStateOf(ScreenNavigation.SignIn)
+    val dialogs = mutableStateListOf<ScreenNavigation>()
     lateinit var onExit: () -> Unit
 
-    fun loadTemplate(doctor: Doctor, onExit: () -> Unit) {
-        screen = ScreenNavigation.FilePicker { file ->
+    fun loadTemplate() {
+        dialogs += ScreenNavigation.FilePicker { file ->
             if (file != null) {
-                screen = ScreenNavigation.Main(
-                    MainScreenViewModel.create(
-                        doctor,
-                        TemplateManager(),
-                        SpeechManagerImpl.instance,
-                        file
-                    ),
-                    onExit,
-                )
-            } else {
-                ScreenNavigation.SignIn
+                (screen as? ScreenNavigation.Main)?.viewModel?.loadNewTemplate(file)
             }
+            dialogs.clear()
         }
+    }
+
+    fun returnToSignIn() {
+        screen = ScreenNavigation.SignIn
     }
 }
 
@@ -93,6 +87,11 @@ fun main() = application {
         }
 
         else -> screen.render()
+    }
+    for (dialog in Navigator.dialogs) {
+        key(dialog) {
+            dialog.render()
+        }
     }
 }
 

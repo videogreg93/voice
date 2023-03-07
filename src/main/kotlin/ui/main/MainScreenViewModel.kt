@@ -69,8 +69,19 @@ class MainScreenViewModel(
         setupCallbacks()
     }
 
+    fun loadNewTemplate(templateFile: File) {
+        val newTemplate = templateManager.loadTemplate(templateFile)
+        val newInputs = newTemplate.inputs
+        state = state.copy(
+            inputs = newTemplate.inputs,
+            startingText = "",
+            selectedInputIndex = Integer.min(state.selectedInputIndex, newInputs.size),
+            templateFile = newTemplate.templateFile
+        )
+    }
+
     private fun onLoadNewTemplate() {
-        Navigator.loadTemplate(state.currentUser, Navigator.onExit)
+        Navigator.loadTemplate()
     }
 
     private fun setupCallbacks() {
